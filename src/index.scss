@@ -1,0 +1,78 @@
+html, body {
+  background-color: #fff;
+  font-family: Arial;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+#root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+button,
+input[type='checkbox'] {
+  outline: none !important;
+}
+
+textarea {
+  resize: none !important;
+}
+
+img {
+  user-select: none;
+  max-width: 100%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+@keyframes rotate_0_270 {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+}
+
+@keyframes color-change {
+  0% { stroke: #4285F4; }
+  25% { stroke: #1B9A59; }
+  50% { stroke: #F7C223; }
+  75% { stroke: #DE3E35; }
+  100% { stroke: #4285F4; }
+}
+
+@keyframes dash {
+  0% { stroke-dashoffset: 188; }
+  50% {
+    stroke-dashoffset: 47;
+    transform:rotate(135deg);
+  }
+  100% {
+    stroke-dashoffset: 188;
+    transform:rotate(450deg);
+  }
+}
+
+@keyframes rotate_180_360 {
+  20%, 80% { transform: rotateY(180deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+@keyframes stroke {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}

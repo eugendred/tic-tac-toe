@@ -1,0 +1,20 @@
+@media (max-width: 768px) {
+  .board-cell {
+    padding: 1.75rem;
+    width: 6rem;
+    height: 6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .play-area {
+    padding: 0.5rem;
+  }
+
+  .board-cell {
+    padding: 1.15rem;
+    margin: 0.25rem;
+    width: 4rem;
+    height: 4rem;
+  }
+}

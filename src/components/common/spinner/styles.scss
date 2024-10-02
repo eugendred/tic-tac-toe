@@ -1,0 +1,14 @@
+.spin {
+  position: relative;
+  animation: rotate_0_270 2s linear infinite;
+  z-index: 999;
+}
+
+.path {
+  stroke-dasharray: 188;
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation:
+    dash 2s ease-in-out infinite,
+    color-change 8s ease-in-out infinite;
+}
