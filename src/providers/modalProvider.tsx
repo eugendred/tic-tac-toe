@@ -17,7 +17,7 @@ const useComposeModal = () => {
   const [modalContent, setModalContent] = useState({ title: '', body: null });
 
   const handleModal = useCallback(
-    ({ title, body }) => {
+    ({ title, body }: any) => {
       showModal((prev) => !prev);
       setModalContent((prev) => ({
         ...prev,

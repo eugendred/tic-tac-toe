@@ -26,7 +26,7 @@ export const SinglePlayerContext = createContext({
   initGame: () => null,
   restartGame: () => null,
   replayGame: () => null,
-  makeMove: (state: Array<string | null>) => null,
+  makeMove: (state: Array<string | null>, moveIdx: number) => null,
   undoMove: () => null,
   addToHistory: (player: string, position: number) => null,
 });
@@ -84,10 +84,13 @@ const useComposedSinglePlayer = () => {
   );
 
   const makeMove = useCallback(
-    async (nextState: Array<string | null>): Promise<void> => {
+    async (nextState: Array<string | null>, moveIdx: number): Promise<void> => {
       try {
         setLoading(true);
-        const res = await postData('/api/make-move', { board: nextState });
+        const res = await postData('/api/make-move', {
+          board: nextState,
+          moveIdx,
+        });
         if (res) {
           setBoardState([...res.board]);
           setGameState({...res.gameState });
@@ -105,7 +108,7 @@ const useComposedSinglePlayer = () => {
   const undoMove = useCallback(
     () => {
       setBoardState((prev) => {
-        const [lastMoveX, lastMoveO] = gameHistory.slice(-2);
+        const [lastMoveX, lastMoveO]: Array<GameHistoryAction> = gameHistory.slice(-2);
         const next = [...prev];
         next[lastMoveX.position] = '';
         next[lastMoveO.position] = '';
@@ -128,7 +131,7 @@ const useComposedSinglePlayer = () => {
       resetBoardState(boardSize);
       const moves = [...gameHistory];
       const intervalId = setInterval(() => {
-        const move = moves.shift();
+        const move: GameHistoryAction = moves.shift();
         if (!move) return clearInterval(intervalId);
         setBoardState((prev) => {
           const next = [...prev];
@@ -186,7 +189,7 @@ const useComposedSinglePlayer = () => {
   return memoedValues;
 };
 
-export const SinglePlayerContextProvider: any = ({ children }: any) => {
+export const SinglePlayerContextProvider = ({ children }: any) => {
   const values = useComposedSinglePlayer();
 
   return <SinglePlayerContext.Provider value={values}>{children}</SinglePlayerContext.Provider>;

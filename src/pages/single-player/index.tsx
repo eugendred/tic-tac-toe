@@ -1,8 +1,7 @@
-import { useCallback, useContext, useMemo, memo } from 'react';
+import { useCallback, useEffect, useContext, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  Alert,
   Box,
   ButtonGroup,
   Button,
@@ -15,8 +14,9 @@ import {
 } from '@mui/material';
 import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-material';
 
-import { SinglePlayerContext } from '../../providers';
-import { GameBoard } from '../../components';
+import { SinglePlayerContext, ModalContext } from '../../providers';
+
+import { GameBoard, GameResultPopup } from './shared';
 
 const StyledGameLayout = styled(Box)({
   height: '96vh',
@@ -28,12 +28,8 @@ const StyledGameLayout = styled(Box)({
   textAlign: 'center',
 });
 
-const WINNER = {
-  O: 'PC',
-  X: 'Player'
-} as any;
-
 const SinglePlayer: React.FC = () => {
+  const { handleModal } = useContext(ModalContext);
   const {
     boardSize,
     boardState,
@@ -58,6 +54,15 @@ const SinglePlayer: React.FC = () => {
     () => navigateTo('/'),
     [navigateTo],
   );
+
+  useEffect(() => {
+    if (gameState.gameOver) {
+      handleModal({
+        title: 'Game Over',
+        body: <GameResultPopup winner={gameState.winner} />
+      });
+    }
+  }, [gameState.gameOver, handleModal]);
 
   return (
     <StyledGameLayout>
@@ -110,12 +115,6 @@ const SinglePlayer: React.FC = () => {
       </Box>
 
       <GameBoard />
-
-      {gameState.gameOver ? (
-        <Alert variant="outlined" severity="info" sx={{ mt: 2 }}>
-          <Box>WINNER: {WINNER[gameState.winner] || 'DRAW'}</Box>
-        </Alert>
-      ) : null}
     </StyledGameLayout>
   );
 };

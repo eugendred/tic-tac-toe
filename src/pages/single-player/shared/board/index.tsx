@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useContext, memo } from 'react';
 import { Box, styled } from '@mui/material';
 
-import { SinglePlayerContext } from '../../providers';
-
-import { CircleIcon, XMarkIcon, Spinner } from '../common';
+import { SinglePlayerContext } from '../../../../providers';
+import { CircleIcon, XMarkIcon, Spinner } from '../../../../components/common';
 
 const StyledBoardContainer = styled(Box)({
   display: 'flex',
@@ -72,7 +71,7 @@ export const GameBoard: React.FC = memo(() => {
       const nextBoard: Array<string | null> = [...boardState];
       nextBoard[idx] = 'X';
       addToHistory('X', idx);
-      makeMove(nextBoard);
+      makeMove(nextBoard, idx);
     },
     [boardState, gameState, makeMove, addToHistory],
   );
