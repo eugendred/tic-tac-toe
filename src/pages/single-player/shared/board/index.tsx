@@ -12,7 +12,7 @@ const StyledBoardContainer = styled(Box)({
 
   '&:after': {
     borderRadius: '0.25rem',
-    backgroundColor: '#028aff2b',
+    backgroundColor: '#e2e1e166',
     content: '""',
     position: 'absolute',
     pointerEvents: 'none',
@@ -43,10 +43,11 @@ const StyledPlayArea = styled(Box)({
     padding: '2.15rem',
     height: '8rem',
     width: '8rem',
+    position: 'relative',
     transition: 'opacity 0.3s ease-in',
 
     '&:hover': {
-      opacity: 0.5,
+      opacity: 0.45,
     },
 
     '&.disabled, &:disabled': {
@@ -84,7 +85,8 @@ export const GameBoard: React.FC = memo(() => {
           className={`board-cell ${value ? 'disabled' : ''}`}
           onClick={handleClickCell(idx)}
         >
-          {value === 'O' ? <CircleIcon /> : value === 'X' ? <XMarkIcon /> : ''}
+          {value === 'O' ? <CircleIcon infinite={!gameState.gameOver} /> : null}
+          {value === 'X' ? <XMarkIcon infinite={!gameState.gameOver} /> : null}
         </button>
       ))
     ),
