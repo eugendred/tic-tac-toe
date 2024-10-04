@@ -1,59 +1,51 @@
-import { useState, useCallback, useEffect, useMemo, useRef, createContext } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef, createContext, PropsWithChildren } from 'react';
 
 import useFetch from '../hooks/useFetch';
-import GameHistoryAction from '../utils/gameHistory';
+import { GameHistoryAction, IGameHistoryAction } from '../utils';
 
 const DEFAULT_BOARD_SIZE = 3;
 
-export type GameState = {
+export type GameStateProps = {
   gameOver: boolean;
-  isDraw: boolean;
   winner: string;
 };
 
-export const SinglePlayerContext = createContext({
-  boardSize: DEFAULT_BOARD_SIZE,
-  boardState: [],
-  gameHistory: [],
-  gameState: {
-    gameOver: false,
-    isDraw: false,
-    winner: '',
-  },
-  loading: false,
-  setBoardSize: (size: number) => null,
-  setLoading: (state: boolean) => null,
-  initGame: () => null,
-  restartGame: () => null,
-  replayGame: () => null,
-  makeMove: (state: Array<string | null>, moveIdx: number) => null,
-  undoMove: () => null,
-  addToHistory: (player: string, position: number) => null,
-});
+export type SinglePlayerContextProps = {
+  readonly boardSize: number;
+  readonly boardState: string[];
+  readonly gameState: GameStateProps;
+  readonly gameHistory: IGameHistoryAction[];
+  readonly loading: boolean;
+  readonly replaying: boolean;
+  setBoardSize: (size: number) => void;
+  setLoading: (state: boolean) => void,
+  addToHistory: (player: string, position: number) => void,
+  initGame: () => void,
+  restartGame: () => void,
+  replayGame: () => void,
+  makeMove: (state: string[], moveIdx: number) => void,
+  undoMove: () => void,
+};
+
+export const SinglePlayerContext = createContext<SinglePlayerContextProps>({} as SinglePlayerContextProps);
 
 const useComposedSinglePlayer = () => {
   const { postData } = useFetch();
   const [boardSize, setBoardSize] = useState(DEFAULT_BOARD_SIZE);
-  const [boardState, setBoardState] = useState(Array.from({ length: boardSize * boardSize }).fill(''));
+  const [boardState, setBoardState] = useState(Array.from({ length: boardSize * boardSize }).fill('') as string[]);
   const [gameHistory, setGameHistory] = useState([]);
-  const [gameState, setGameState] = useState({
-    gameOver: false,
-    isDraw: false,
-    winner: '',
-  } as GameState);
+  const [gameState, setGameState] = useState({ gameOver: false, winner: '' });
   const [loading, setLoading] = useState(false);
-  const timeoutRef = useRef(undefined);
+  const [replaying, setReplaying] = useState(false);
+  const timeoutRef = useRef<any>(null);
+  const intervalRef = useRef<any>(null);
 
   const resetBoardState = (boardSize: number) => {
-    setBoardState(Array.from({ length: boardSize * boardSize }).fill(''));
+    setBoardState(Array.from({ length: boardSize * boardSize }).fill('') as string[]);
   };
 
   const resetGameState = () => {
-    setGameState({
-      gameOver: false,
-      isDraw: false,
-      winner: '',
-    });
+    setGameState({ gameOver: false, winner: '' });
   };
 
   const addToHistory = useCallback(
@@ -68,19 +60,21 @@ const useComposedSinglePlayer = () => {
       resetGameState();
       resetBoardState(boardSize);
       setGameHistory([]);
+      setReplaying(false);
     },
     [boardSize],
   );
 
   const restartGame = useCallback(
     () => {
+      if (replaying) return;
       setLoading(true);
       timeoutRef.current = setTimeout(() => {
         initGame();
         setLoading(false);
       }, 1500);
     },
-    [initGame],
+    [replaying, initGame],
   );
 
   const makeMove = useCallback(
@@ -107,6 +101,7 @@ const useComposedSinglePlayer = () => {
 
   const undoMove = useCallback(
     () => {
+      if (replaying) return;
       setBoardState((prev) => {
         const [lastMoveX, lastMoveO]: Array<GameHistoryAction> = gameHistory.slice(-2);
         const next = [...prev];
@@ -116,40 +111,53 @@ const useComposedSinglePlayer = () => {
       });
       setGameHistory(() => gameHistory.slice(0, -2));
       if (gameState.gameOver) {
-        setGameState({
-          gameOver: false,
-          isDraw: false,
-          winner: '',
-        });
+        resetGameState();
       }
     },
-    [gameState, gameHistory],
+    [gameState, gameHistory, replaying],
   );
 
   const replayGame = useCallback(
     () => {
+      setReplaying(true);
       resetBoardState(boardSize);
       const moves = [...gameHistory];
-      const intervalId = setInterval(() => {
-        const move: GameHistoryAction = moves.shift();
-        if (!move) return clearInterval(intervalId);
-        setBoardState((prev) => {
-          const next = [...prev];
-          next[move.position] = move.player;
-          return next;
-        });
+      intervalRef.current = setInterval(() => {
+        const move: any = moves.shift();
+        if (move) {
+          setBoardState((prev) => {
+            const next = [...prev];
+            next[move.position] = move.player;
+            return next;
+          });
+        } else {
+          clearInterval(intervalRef.current);
+          setReplaying(false);
+        }
       }, 1000);
     },
     [boardSize, gameHistory],
   );
 
-  const memoedValues = useMemo(
+  useEffect(() => {
+    resetBoardState(boardSize);
+  }, [boardSize]);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timeoutRef.current);
+      clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  const memoedValues: SinglePlayerContextProps = useMemo(
     () => ({
       boardSize,
       boardState,
       gameState,
       gameHistory,
       loading,
+      replaying,
       setBoardSize,
       setLoading,
       addToHistory,
@@ -165,6 +173,7 @@ const useComposedSinglePlayer = () => {
       gameState,
       gameHistory,
       loading,
+      replaying,
       setBoardSize,
       setLoading,
       addToHistory,
@@ -176,20 +185,10 @@ const useComposedSinglePlayer = () => {
     ],
   );
 
-  useEffect(() => {
-    resetBoardState(boardSize);
-  }, [boardSize]);
-
-  useEffect(() => {
-    return () => {
-      clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
   return memoedValues;
 };
 
-export const SinglePlayerContextProvider = ({ children }: any) => {
+export const SinglePlayerContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const values = useComposedSinglePlayer();
 
   return <SinglePlayerContext.Provider value={values}>{children}</SinglePlayerContext.Provider>;

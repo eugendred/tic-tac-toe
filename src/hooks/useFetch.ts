@@ -1,4 +1,4 @@
-import HttpManager from '../utils/httpManager';
+import { HttpManager, fakeController } from '../utils';
 
 const useFetch = () => {
   const API = HttpManager.getInstance({
@@ -11,7 +11,7 @@ const useFetch = () => {
   };
 
   const postData = async (endpoint: string, reqData: any) => {
-    const res = await API.post(endpoint, reqData);
+    const res = await fakeController(endpoint, reqData);
     return res?.data;
   };
 

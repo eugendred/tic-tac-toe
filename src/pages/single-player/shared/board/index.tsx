@@ -39,7 +39,6 @@ const StyledPlayArea = styled(Box)({
     backgroundColor: '#e2e1e1',
     borderRadius: '0.5rem',
     border: 'none',
-    outline: 'none',
     margin: '0.5rem',
     padding: '2.15rem',
     height: '8rem',
@@ -68,7 +67,7 @@ export const GameBoard: React.FC = memo(() => {
   const handleClickCell = useCallback(
     (idx: number) => () => {
       if (boardState[idx] || gameState.winner || gameState.gameOver) return;
-      const nextBoard: Array<string | null> = [...boardState];
+      const nextBoard: string[] = [...boardState];
       nextBoard[idx] = 'X';
       addToHistory('X', idx);
       makeMove(nextBoard, idx);

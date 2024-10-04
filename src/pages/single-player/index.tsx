@@ -10,6 +10,7 @@ import {
   FormLabel,
   RadioGroup,
   Radio,
+  Tooltip,
   styled
 } from '@mui/material';
 import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-material';
@@ -34,6 +35,7 @@ const SinglePlayer: React.FC = () => {
     boardSize,
     boardState,
     gameState,
+    replaying,
     setBoardSize,
     restartGame,
     replayGame,
@@ -44,7 +46,7 @@ const SinglePlayer: React.FC = () => {
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
 
   const handleChangeBoardSize = useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!gameStarted) setBoardSize(Number(e.target.value));
     },
     [gameStarted],
@@ -75,21 +77,21 @@ const SinglePlayer: React.FC = () => {
             Back
           </Button>
           <Button
-            disabled={!gameStarted}
+            disabled={!gameStarted || replaying}
             endIcon={<PlayCircleOutline />}
             onClick={restartGame}
           >
             Restart
           </Button>
           <Button
-            disabled={!gameStarted}
+            disabled={!gameStarted || replaying}
             endIcon={<Undo />}
             onClick={undoMove}
           >
             Undo
           </Button>
           <Button
-            disabled={!gameState.gameOver}
+            disabled={!gameState.gameOver || replaying}
             endIcon={<RestartAlt />}
             onClick={replayGame}
           >
@@ -107,9 +109,13 @@ const SinglePlayer: React.FC = () => {
             value={boardSize || 3}
             onChange={handleChangeBoardSize}
           >
-            <FormControlLabel control={<Radio />} value={3} label="3x3" disabled={gameStarted} />
-            <FormControlLabel control={<Radio />} value={4} label="4x4" disabled={gameStarted} />
-            <FormControlLabel control={<Radio />} value={5} label="5x5" disabled={gameStarted} />
+            <FormControlLabel control={<Radio />} value={3} label="3x3" />
+            <Tooltip title="Not available yet">
+              <FormControlLabel control={<Radio />} label="4x4" disabled />
+            </Tooltip>
+            <Tooltip title="Not available yet">
+              <FormControlLabel control={<Radio />} label="5x5" disabled />
+            </Tooltip>
           </RadioGroup>
         </FormControl>
       </Box>

@@ -1,23 +1,27 @@
-import { createContext, useMemo, useState, useCallback } from 'react';
+import { createContext, useMemo, useState, useCallback, PropsWithChildren } from 'react';
 
 import { Modal } from '../components/modal';
 
-export const ModalContext = createContext({
-  modalVisible: false,
-  modalContent: {
-    title: '',
-    body: null,
-  },
-  handleModal: (content: any) => null,
-  closeModal: () => null,
-});
+type ModalContentProps = {
+  title: string;
+  body: any;
+};
+
+export type ModalContextProps = {
+  readonly modalVisible: boolean;
+  readonly modalContent: ModalContentProps;
+  handleModal: (content: ModalContentProps) => void;
+  closeModal: () => void,
+};
+
+export const ModalContext = createContext<ModalContextProps>({} as ModalContextProps);
 
 const useComposeModal = () => {
   const [modalVisible, showModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: null });
 
   const handleModal = useCallback(
-    ({ title, body }: any) => {
+    ({ title, body }: ModalContentProps) => {
       showModal((prev) => !prev);
       setModalContent((prev) => ({
         ...prev,
@@ -48,7 +52,7 @@ const useComposeModal = () => {
   return memoedValues;
 };
 
-export const ModalContextProvider = ({ children }: any) => {
+export const ModalContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const values = useComposeModal();
 
   return (

@@ -1,4 +1,10 @@
-class GameHistoryAction {
+export interface IGameHistoryAction {
+  player: string;
+  position: number;
+  timestamp: number;
+}
+
+export class GameHistoryAction implements IGameHistoryAction {
   constructor(
     public readonly player: string,
     public readonly position: number,
@@ -9,5 +15,3 @@ class GameHistoryAction {
     this.timestamp = timestamp;
   }
 }
-
-export default GameHistoryAction;

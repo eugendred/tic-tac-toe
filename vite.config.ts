@@ -7,4 +7,23 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [react(), vitePluginSvgr()],
-})
+  optimizeDeps: {
+    include: [
+      '@mui/material',
+      '@mui/icons-material',
+      '@emotion/react',
+      '@emotion/styled',
+    ],
+  },
+  build: {
+    outDir: 'build',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@emotion')) return 'emotion';
+          if (id.includes('@mui')) return 'mui';
+        },
+      },
+    },
+  },
+});

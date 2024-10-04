@@ -13,7 +13,7 @@
     }
 
     &.active {
-      animation: toplong 1.75s linear;
+      animation: toplong 1.5s linear;
     }
   }
 
@@ -22,7 +22,7 @@
     transform-origin: bottom center;
   }
 
-  span:nth-child(4n).active {
+  span:nth-child(3n).active {
     animation: falling 2s ease-out;
     transform-origin: bottom center;
   }

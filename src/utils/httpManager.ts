@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-class HttpManager {
+export class HttpManager {
   private static instance: AxiosInstance | null = null;
   private static readonly defaultOptions: AxiosRequestConfig = {
     data: new FormData(),
@@ -16,5 +16,3 @@ class HttpManager {
     return HttpManager.instance;
   }
 }
-
-export default HttpManager;
