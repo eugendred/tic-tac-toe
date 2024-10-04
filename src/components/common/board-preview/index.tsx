@@ -25,7 +25,7 @@ export const GameBoardPreview: React.FC = () => {
     () => (
       ['O','','X','','O','','X','','O'].map((value, idx) => (
         <span key={idx} className="board-cell">
-          {value === 'O' ? <CircleIcon /> : value === 'X' ? <XMarkIcon /> : ''}
+          {value === 'O' ? <CircleIcon infinite /> : value === 'X' ? <XMarkIcon infinite /> : ''}
         </span>
       ))
     ),
@@ -37,16 +37,4 @@ export const GameBoardPreview: React.FC = () => {
       {boardCells}
     </BoardPreviewContainer>
   )
-  // return (
-  //   <div className="game-board-preview">
-  //     <div>
-  //       <div className="h-line" />
-  //       <div className="h-line" />
-  //     </div>
-  //     <div>
-  //       <div className="v-line" />
-  //       <div className="v-line" />
-  //     </div>
-  //   </div>
-  // )
 };
