@@ -8,8 +8,8 @@ import useFetch from '../../hooks/useFetch';
 import { AnimatedTitle, GameBoardPreview } from '../../components';
 
 const BaseContainer = styled(Box)({
-  height: '96vh',
-  padding: '1rem',
+  minHeight: '92vh',
+  padding: '1.5rem 1rem',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',

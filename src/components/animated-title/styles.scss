@@ -55,4 +55,12 @@
     10%, 40% { transform: translateY(-8vh) scaleY(1); }
     90% { transform: translateY(-8vh) scaleY(3); }
   }
+
+  @media (max-width: 640px) {
+    font-size: 4.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 2.875rem;
+  }
 }
