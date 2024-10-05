@@ -16,12 +16,14 @@ import {
 import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-material';
 
 import { SinglePlayerContext, ModalContext } from '../../providers';
+import useWindowSize from '../../hooks/useWindowSize';
+import { GameLevelEnum } from '../../utils';
 
 import { GameBoard, GameResultPopup } from './shared';
 
 const StyledGameLayout = styled(Box)({
-  height: '96vh',
-  padding: '1rem',
+  minHeight: '92vh',
+  padding: '1.5rem 1rem',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'flex-start',
@@ -29,25 +31,43 @@ const StyledGameLayout = styled(Box)({
   textAlign: 'center',
 });
 
+const StyledButton = styled(Button)({
+  '@media (max-width: 576px)': {
+    '.MuiButton-startIcon': {
+      margin: 0,
+    },
+  },
+})
+
 const SinglePlayer: React.FC = () => {
   const { handleModal } = useContext(ModalContext);
   const {
     boardSize,
     boardState,
     gameState,
+    gameLevel,
     replaying,
     setBoardSize,
+    setGameLevel,
     restartGame,
     replayGame,
     undoMove,
   } = useContext(SinglePlayerContext);
   const navigateTo = useNavigate();
+  const { width } = useWindowSize();
 
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
 
   const handleChangeBoardSize = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!gameStarted) setBoardSize(Number(e.target.value));
+    },
+    [gameStarted],
+  );
+
+  const handleChangeGameLevel = useCallback(
+    (e: any) => {
+      if (!gameStarted) setGameLevel(e.target.value);
     },
     [gameStarted],
   );
@@ -68,44 +88,43 @@ const SinglePlayer: React.FC = () => {
 
   return (
     <StyledGameLayout>
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 1.5 }}>
         <ButtonGroup variant="outlined">
-          <Button
+          <StyledButton
             startIcon={<ArrowBackIos />}
             onClick={handleGoBack}
           >
-            Back
-          </Button>
-          <Button
+            {width > 576 ? 'Back' : ''}
+          </StyledButton>
+          <StyledButton
             disabled={!gameStarted || replaying}
-            endIcon={<PlayCircleOutline />}
+            startIcon={<PlayCircleOutline />}
             onClick={restartGame}
           >
-            Restart
-          </Button>
-          <Button
+            {width > 576 ? 'Restart' : ''}
+          </StyledButton>
+          <StyledButton
             disabled={!gameStarted || replaying}
-            endIcon={<Undo />}
+            startIcon={<Undo />}
             onClick={undoMove}
           >
-            Undo
-          </Button>
-          <Button
+            {width > 576 ? 'Undo' : ''}
+          </StyledButton>
+          <StyledButton
             disabled={!gameState.gameOver || replaying}
-            endIcon={<RestartAlt />}
+            startIcon={<RestartAlt />}
             onClick={replayGame}
           >
-            Replay
-          </Button>
+            {width > 576 ? 'Replay' : ''}
+          </StyledButton>
         </ButtonGroup>
       </Box>
 
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 1 }}>
         <FormControl>
           <FormLabel>Game Size:</FormLabel>
           <RadioGroup
             row
-            name="board_size"
             value={boardSize || 3}
             onChange={handleChangeBoardSize}
           >
@@ -116,6 +135,21 @@ const SinglePlayer: React.FC = () => {
             <Tooltip title="Not available yet">
               <FormControlLabel control={<Radio />} label="5x5" disabled />
             </Tooltip>
+          </RadioGroup>
+        </FormControl>
+      </Box>
+
+      <Box sx={{ mb: 1 }}>
+        <FormControl>
+          <FormLabel>Game Level:</FormLabel>
+          <RadioGroup
+            row
+            value={gameLevel || GameLevelEnum.EASY}
+            onChange={handleChangeGameLevel}
+          >
+            <FormControlLabel control={<Radio />} value={GameLevelEnum.EASY} label="Easy" />
+            <FormControlLabel control={<Radio />} value={GameLevelEnum.MEDIUM} label="Medium" />
+            <FormControlLabel control={<Radio />} value={GameLevelEnum.HARD} label="Hard" />
           </RadioGroup>
         </FormControl>
       </Box>

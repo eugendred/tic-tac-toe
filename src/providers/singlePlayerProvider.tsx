@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef, createContext, PropsWithChildren } from 'react';
 
 import useFetch from '../hooks/useFetch';
-import { GameHistoryAction, IGameHistoryAction } from '../utils';
+import { GameHistoryAction, IGameHistoryAction, GameLevelEnum } from '../utils';
 
 const DEFAULT_BOARD_SIZE = 3;
 
@@ -14,11 +14,13 @@ export type SinglePlayerContextProps = {
   readonly boardSize: number;
   readonly boardState: string[];
   readonly gameState: GameStateProps;
+  readonly gameLevel: GameLevelEnum;
   readonly gameHistory: IGameHistoryAction[];
   readonly loading: boolean;
   readonly replaying: boolean;
   setBoardSize: (size: number) => void;
   setLoading: (state: boolean) => void,
+  setGameLevel: (level: GameLevelEnum) => void,
   addToHistory: (player: string, position: number) => void,
   initGame: () => void,
   restartGame: () => void,
@@ -35,6 +37,7 @@ const useComposedSinglePlayer = () => {
   const [boardState, setBoardState] = useState(Array.from({ length: boardSize * boardSize }).fill('') as string[]);
   const [gameHistory, setGameHistory] = useState([]);
   const [gameState, setGameState] = useState({ gameOver: false, winner: '' });
+  const [gameLevel, setGameLevel] = useState(GameLevelEnum.EASY);
   const [loading, setLoading] = useState(false);
   const [replaying, setReplaying] = useState(false);
   const timeoutRef = useRef<any>(null);
@@ -83,6 +86,7 @@ const useComposedSinglePlayer = () => {
         setLoading(true);
         const res = await postData('/api/make-move', {
           board: nextState,
+          level: gameLevel,
           moveIdx,
         });
         if (res) {
@@ -96,7 +100,7 @@ const useComposedSinglePlayer = () => {
         setLoading(false);
       }
     },
-    [postData, addToHistory],
+    [gameLevel, postData, addToHistory],
   );
 
   const undoMove = useCallback(
@@ -155,10 +159,12 @@ const useComposedSinglePlayer = () => {
       boardSize,
       boardState,
       gameState,
+      gameLevel,
       gameHistory,
       loading,
       replaying,
       setBoardSize,
+      setGameLevel,
       setLoading,
       addToHistory,
       initGame,
@@ -171,10 +177,12 @@ const useComposedSinglePlayer = () => {
       boardSize,
       boardState,
       gameState,
+      gameLevel,
       gameHistory,
       loading,
       replaying,
       setBoardSize,
+      setGameLevel,
       setLoading,
       addToHistory,
       initGame,

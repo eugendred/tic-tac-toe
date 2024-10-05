@@ -31,7 +31,7 @@ const StyledBoardContainer = styled(Box)({
 const StyledPlayArea = styled(Box)({
   borderRadius: '0.25rem',
   border: '1px solid #e2e1e1',
-  padding: '0.75rem',
+  padding: '0.25rem',
   display: 'grid',
 
   '.board-cell': {
@@ -60,6 +60,22 @@ const StyledPlayArea = styled(Box)({
       opacity: 1,
     },
   },
+
+  '@media (max-width: 576px)': {
+    '.board-cell': {
+      padding: '1.785rem',
+      height: '6.25rem',
+      width: '6.25rem',
+    },
+  },
+
+  '@media (max-width: 480px)': {
+    '.board-cell': {
+      padding: '1.5rem',
+      height: '5rem',
+      width: '5rem',
+    }
+  }
 });
 
 export const GameBoard: React.FC = memo(() => {
