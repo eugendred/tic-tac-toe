@@ -8,12 +8,9 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
-  InputLabel,
   RadioGroup,
   Radio,
   Tooltip,
-  TextField,
-  MenuItem,
   styled
 } from '@mui/material';
 import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-material';
