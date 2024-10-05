@@ -1,8 +1,26 @@
 import { sleep } from './common';
 
+export enum GameLevelEnum {
+  EASY = 'EASY',
+  MEDIUM = 'MEDIUM',
+  HARD = 'HARD',
+}
+
 export type GameState = {
   gameOver: boolean;
   winner: string;
+};
+
+export const getGamePrecision = (level: GameLevelEnum): number => {
+  switch (level) {
+    case GameLevelEnum.HARD:
+      return 92;
+    case GameLevelEnum.MEDIUM:
+      return 68;
+    case GameLevelEnum.EASY:
+    default:
+      return 36;
+  }
 };
 
 export const getEmptyCellsIds = (board: string[]): number[] => {
@@ -98,10 +116,17 @@ export const minimax = ( board: string[], depth: number, isMaximizing: boolean):
   }
 };
 
-export const calcNextMove = (board: string[], aiPrecision: number): number | null => {
+export const calcNextMove = (board: string[], aiPrecision: GameLevelEnum): number | null => {
+  const emptyCells = getEmptyCellsIds(board);
+  const gamePrecision: number = getGamePrecision(aiPrecision);
+  const randomValue = Math.round(Math.random() * 100);
+
+  if (randomValue > gamePrecision && emptyCells.length > 0) {
+    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+  }
+
   let bestScore = -Infinity;
   let bestMove: number | null = null;
-  const emptyCells = getEmptyCellsIds(board);
 
   for (const index of emptyCells) {
     board[index] = 'O';
@@ -112,11 +137,6 @@ export const calcNextMove = (board: string[], aiPrecision: number): number | nul
       bestScore = score;
       bestMove = index;
     }
-  }
-
-  const randomValue = Math.random() * 100;
-  if (randomValue < aiPrecision && emptyCells.length > 0) {
-    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
   }
 
   return bestMove;
@@ -133,7 +153,8 @@ export const fakeController = async (endpoint: string, reqData: any): Promise<an
 
     case '/api/make-move': {
       await sleep(1000);
-      const gameState = evaluateGame(reqData.board);
+      const { board, level } = reqData;
+      const gameState = evaluateGame(board);
       if (gameState.gameOver) {
         return {
           data: {
@@ -144,8 +165,8 @@ export const fakeController = async (endpoint: string, reqData: any): Promise<an
         };
       }
 
-      const nextBoard = [...reqData.board];
-      const nextMoveIdx = calcNextMove(nextBoard, 0.8);
+      const nextBoard = [...board];
+      const nextMoveIdx = calcNextMove(nextBoard, level);
       if (nextMoveIdx !== null) {
         nextBoard[nextMoveIdx] = 'O';
       }
