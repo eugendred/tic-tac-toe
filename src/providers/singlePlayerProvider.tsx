@@ -1,32 +1,31 @@
 import { useState, useCallback, useEffect, useMemo, useRef, createContext, PropsWithChildren } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import useFetch from '../hooks/useFetch';
-import { GameHistoryAction, IGameHistoryAction, GameLevelEnum } from '../utils';
+import { GameHistoryAction, IGameHistoryAction } from '../utils';
+import { GameStateProps, GameModeEnum, GameLevelEnum } from '../types';
 
 const DEFAULT_BOARD_SIZE = 3;
-
-export type GameStateProps = {
-  gameOver: boolean;
-  winner: string;
-};
 
 export type SinglePlayerContextProps = {
   readonly boardSize: number;
   readonly boardState: string[];
   readonly gameState: GameStateProps;
   readonly gameLevel: GameLevelEnum;
+  readonly gameMode: GameModeEnum;
   readonly gameHistory: IGameHistoryAction[];
-  readonly loading: boolean;
-  readonly replaying: boolean;
   setBoardSize: (size: number) => void;
-  setLoading: (state: boolean) => void,
   setGameLevel: (level: GameLevelEnum) => void,
+  setGameMode: (mode: GameModeEnum) => void,
+  setLoading: (loading: boolean) => void,
+  setReplaying: (state: boolean) => void,
   addToHistory: (player: string, position: number) => void,
   initGame: () => void,
   restartGame: () => void,
   replayGame: () => void,
-  makeMove: (state: string[], moveIdx: number) => void,
+  makeMove: (state: string[], moveIdx: number) => Promise<void>,
   undoMove: () => void,
+  startNewGame: () => Promise<void>,
 };
 
 export const SinglePlayerContext = createContext<SinglePlayerContextProps>({} as SinglePlayerContextProps);
@@ -36,10 +35,15 @@ const useComposedSinglePlayer = () => {
   const [boardSize, setBoardSize] = useState(DEFAULT_BOARD_SIZE);
   const [boardState, setBoardState] = useState(Array.from({ length: boardSize * boardSize }).fill('') as string[]);
   const [gameHistory, setGameHistory] = useState([]);
-  const [gameState, setGameState] = useState({ gameOver: false, winner: '' });
   const [gameLevel, setGameLevel] = useState(GameLevelEnum.EASY);
-  const [loading, setLoading] = useState(false);
-  const [replaying, setReplaying] = useState(false);
+  const [gameMode, setGameMode] = useState(GameModeEnum.SINGLE_GAME);
+  const [gameState, setGameState] = useState({
+    winner: '',
+    isOver: false,
+    replaying: false,
+    loading: false,
+  });
+  const navigateTo = useNavigate();
   const timeoutRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
 
@@ -48,8 +52,27 @@ const useComposedSinglePlayer = () => {
   };
 
   const resetGameState = () => {
-    setGameState({ gameOver: false, winner: '' });
+    setGameState({
+      winner: '',
+      isOver: false,
+      replaying: false,
+      loading: false,
+    });
   };
+
+  const setLoading = useCallback(
+    (loading: boolean) => {
+      setGameState((prev) => ({ ...prev, loading }));
+    },
+    [],
+  );
+
+  const setReplaying = useCallback(
+    (replaying: boolean) => {
+      setGameState((prev) => ({ ...prev, replaying }));
+    },
+    [],
+  );
 
   const addToHistory = useCallback(
     (player: string, position: number) => {
@@ -63,21 +86,20 @@ const useComposedSinglePlayer = () => {
       resetGameState();
       resetBoardState(boardSize);
       setGameHistory([]);
-      setReplaying(false);
     },
     [boardSize],
   );
 
   const restartGame = useCallback(
     () => {
-      if (replaying) return;
+      if (gameState.replaying) return;
       setLoading(true);
       timeoutRef.current = setTimeout(() => {
         initGame();
         setLoading(false);
-      }, 1500);
+      }, 1000);
     },
-    [replaying, initGame],
+    [gameState.replaying, initGame, setLoading],
   );
 
   const makeMove = useCallback(
@@ -91,7 +113,7 @@ const useComposedSinglePlayer = () => {
         });
         if (res) {
           setBoardState([...res.board]);
-          setGameState({...res.gameState });
+          setGameState((prev) => ({ ...prev, ...res.gameState }));
           addToHistory('O', res.moveIdx);
         }
       } catch (error) {
@@ -100,25 +122,24 @@ const useComposedSinglePlayer = () => {
         setLoading(false);
       }
     },
-    [gameLevel, postData, addToHistory],
+    [gameLevel, postData, addToHistory, setLoading],
   );
 
   const undoMove = useCallback(
     () => {
-      if (replaying) return;
+      if (gameState.replaying) return;
       setBoardState((prev) => {
         const [lastMoveX, lastMoveO]: Array<GameHistoryAction> = gameHistory.slice(-2);
+        if (!lastMoveX || !lastMoveO) return prev;
         const next = [...prev];
         next[lastMoveX.position] = '';
         next[lastMoveO.position] = '';
         return next;
       });
       setGameHistory(() => gameHistory.slice(0, -2));
-      if (gameState.gameOver) {
-        resetGameState();
-      }
+      if (gameState.isOver) resetGameState();
     },
-    [gameState, gameHistory, replaying],
+    [gameState.replaying, gameState.isOver, gameHistory],
   );
 
   const replayGame = useCallback(
@@ -140,7 +161,19 @@ const useComposedSinglePlayer = () => {
         }
       }, 1000);
     },
-    [boardSize, gameHistory],
+    [boardSize, gameHistory, setReplaying],
+  );
+
+  const startNewGame = useCallback(
+    async (): Promise<void> => {
+      try {
+        const res = await postData('/api/rooms', null);
+        if (res) navigateTo(`/single-player/${res.roomId}`, { replace: true });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [postData, navigateTo],
   );
 
   useEffect(() => {
@@ -160,36 +193,40 @@ const useComposedSinglePlayer = () => {
       boardState,
       gameState,
       gameLevel,
+      gameMode,
       gameHistory,
-      loading,
-      replaying,
       setBoardSize,
       setGameLevel,
       setLoading,
+      setReplaying,
+      setGameMode,
       addToHistory,
       initGame,
       restartGame,
       replayGame,
       makeMove,
       undoMove,
+      startNewGame,
     }),
     [
       boardSize,
       boardState,
       gameState,
       gameLevel,
+      gameMode,
       gameHistory,
-      loading,
-      replaying,
       setBoardSize,
       setGameLevel,
       setLoading,
+      setReplaying,
+      setGameMode,
       addToHistory,
       initGame,
       restartGame,
       replayGame,
       makeMove,
       undoMove,
+      startNewGame,
     ],
   );
 

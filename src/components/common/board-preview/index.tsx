@@ -5,7 +5,7 @@ import { CircleIcon, XMarkIcon } from '../board-icons';
 
 const BoardPreviewContainer = styled(Box)({
   padding: '0.5rem',
-  marginBottom: '0.75rem',
+  marginBottom: '0.5rem',
   display: 'grid',
   gridTemplateRows: 'repeat(3, 1fr)',
   gridTemplateColumns: 'repeat(3, 1fr)',

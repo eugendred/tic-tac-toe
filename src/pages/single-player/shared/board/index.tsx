@@ -79,11 +79,11 @@ const StyledPlayArea = styled(Box)({
 });
 
 export const GameBoard: React.FC = memo(() => {
-  const { loading, boardSize, boardState, gameState, makeMove, addToHistory } = useContext(SinglePlayerContext);
+  const { boardSize, boardState, gameState, makeMove, addToHistory } = useContext(SinglePlayerContext);
 
   const handleClickCell = useCallback(
     (idx: number) => () => {
-      if (boardState[idx] || gameState.winner || gameState.gameOver) return;
+      if (boardState[idx] || gameState.winner || gameState.isOver) return;
       const nextBoard: string[] = [...boardState];
       nextBoard[idx] = 'X';
       addToHistory('X', idx);
@@ -97,27 +97,27 @@ export const GameBoard: React.FC = memo(() => {
       boardState.map((value: string | null, idx: number) => (
         <button
           key={idx}
-          disabled={value !== '' || gameState.gameOver}
+          disabled={value !== '' || gameState.isOver}
           className={`board-cell ${value ? 'disabled' : ''}`}
           onClick={handleClickCell(idx)}
         >
-          {value === 'O' ? <CircleIcon infinite={!gameState.gameOver} /> : null}
-          {value === 'X' ? <XMarkIcon infinite={!gameState.gameOver} /> : null}
+          {value === 'O' ? <CircleIcon infinite={!gameState.isOver} /> : null}
+          {value === 'X' ? <XMarkIcon infinite={!gameState.isOver} /> : null}
         </button>
       ))
     ),
-    [boardState, gameState.gameOver, handleClickCell],
+    [boardState, gameState.isOver, handleClickCell],
   );
 
   return (
     <StyledBoardContainer
       sx={{
         '&:after': {
-          display: loading ? 'block' : 'none',
+          display: gameState.loading ? 'block' : 'none',
         }
       }}
     >
-      {loading ? <Spinner /> : null}
+      {gameState.loading ? <Spinner /> : null}
 
       <StyledPlayArea
         sx={{

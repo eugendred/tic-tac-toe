@@ -1,15 +1,6 @@
+import { GameLevelEnum, GameEvaluationResult } from '../types';
+
 import { sleep } from './common';
-
-export enum GameLevelEnum {
-  EASY = 'EASY',
-  MEDIUM = 'MEDIUM',
-  HARD = 'HARD',
-}
-
-export type GameState = {
-  gameOver: boolean;
-  winner: string;
-};
 
 export const getGamePrecision = (level: GameLevelEnum): number => {
   switch (level) {
@@ -61,7 +52,7 @@ export const calcWinnerCombinations = (boardSize: number): number[][] => {
   return combinations;
 };
 
-export const evaluateGame = (board: string[]): GameState => {
+export const evaluateGame = (board: string[]): GameEvaluationResult => {
   const boardSize = Math.sqrt(board.length);
   const combinations = calcWinnerCombinations(boardSize);
   let winner: string = '';
@@ -80,14 +71,14 @@ export const evaluateGame = (board: string[]): GameState => {
   }
 
   return {
-    gameOver: Boolean(winner),
+    isOver: Boolean(winner),
     winner,
   };
 };
 
 export const minimax = ( board: string[], depth: number, isMaximizing: boolean): number => {
-  const { gameOver, winner } = evaluateGame(board);
-  if (gameOver) {
+  const { isOver, winner } = evaluateGame(board);
+  if (isOver) {
     if (winner === 'O') return 10 - depth;
     if (winner === 'X') return depth - 10;
     return 0;
@@ -155,7 +146,7 @@ export const fakeController = async (endpoint: string, reqData: any): Promise<an
       await sleep(1000);
       const { board, level } = reqData;
       const gameState = evaluateGame(board);
-      if (gameState.gameOver) {
+      if (gameState.isOver) {
         return {
           data: {
             gameState,

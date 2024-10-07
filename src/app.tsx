@@ -13,7 +13,9 @@ const App: React.FC = () => (
     <Route element={<BaseLayout/>}>
       <Route index path="/" element={
         <Suspense fallback={<FallbackView />}>
-          <Welcome />
+          <SinglePlayerContextProvider>
+            <Welcome />
+          </SinglePlayerContextProvider>
         </Suspense>
       } />
 

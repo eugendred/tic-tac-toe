@@ -17,7 +17,7 @@ import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-ma
 
 import { SinglePlayerContext, ModalContext } from '../../providers';
 import useWindowSize from '../../hooks/useWindowSize';
-import { GameLevelEnum } from '../../utils';
+import { GameLevelEnum } from '../../types';
 
 import { GameBoard, GameResultPopup } from './shared';
 
@@ -46,15 +46,14 @@ const SinglePlayer: React.FC = () => {
     boardState,
     gameState,
     gameLevel,
-    replaying,
     setBoardSize,
     setGameLevel,
     restartGame,
     replayGame,
     undoMove,
   } = useContext(SinglePlayerContext);
-  const navigateTo = useNavigate();
   const { width } = useWindowSize();
+  const navigateTo = useNavigate();
 
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
 
@@ -78,13 +77,13 @@ const SinglePlayer: React.FC = () => {
   );
 
   useEffect(() => {
-    if (gameState.gameOver) {
+    if (gameState.isOver) {
       handleModal({
         title: 'Game Over',
         body: <GameResultPopup winner={gameState.winner} />
       });
     }
-  }, [gameState.gameOver, handleModal]);
+  }, [gameState.isOver, handleModal]);
 
   return (
     <StyledGameLayout>
@@ -97,21 +96,21 @@ const SinglePlayer: React.FC = () => {
             {width > 576 ? 'Back' : ''}
           </StyledButton>
           <StyledButton
-            disabled={!gameStarted || replaying}
+            disabled={!gameStarted || gameState.replaying}
             startIcon={<PlayCircleOutline />}
             onClick={restartGame}
           >
             {width > 576 ? 'Restart' : ''}
           </StyledButton>
           <StyledButton
-            disabled={!gameStarted || replaying}
+            disabled={!gameStarted || gameState.replaying}
             startIcon={<Undo />}
             onClick={undoMove}
           >
             {width > 576 ? 'Undo' : ''}
           </StyledButton>
           <StyledButton
-            disabled={!gameState.gameOver || replaying}
+            disabled={!gameState.isOver || gameState.replaying}
             startIcon={<RestartAlt />}
             onClick={replayGame}
           >
@@ -123,11 +122,7 @@ const SinglePlayer: React.FC = () => {
       <Box sx={{ mb: 1 }}>
         <FormControl>
           <FormLabel>Game Size:</FormLabel>
-          <RadioGroup
-            row
-            value={boardSize || 3}
-            onChange={handleChangeBoardSize}
-          >
+          <RadioGroup row value={boardSize || 3} onChange={handleChangeBoardSize}>
             <FormControlLabel control={<Radio />} value={3} label="3x3" />
             <Tooltip title="Not available yet">
               <FormControlLabel control={<Radio />} label="4x4" disabled />
@@ -142,11 +137,7 @@ const SinglePlayer: React.FC = () => {
       <Box sx={{ mb: 1 }}>
         <FormControl>
           <FormLabel>Game Level:</FormLabel>
-          <RadioGroup
-            row
-            value={gameLevel || GameLevelEnum.EASY}
-            onChange={handleChangeGameLevel}
-          >
+          <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
             <FormControlLabel control={<Radio />} value={GameLevelEnum.EASY} label="Easy" />
             <FormControlLabel control={<Radio />} value={GameLevelEnum.MEDIUM} label="Medium" />
             <FormControlLabel control={<Radio />} value={GameLevelEnum.HARD} label="Hard" />

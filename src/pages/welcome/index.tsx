@@ -1,11 +1,20 @@
-import { useCallback, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useContext, memo } from 'react';
 
-import { Box, Button, styled } from '@mui/material';
-import PlayCircleOutline from '@mui/icons-material/PlayCircleOutline';
+import {
+  Box,
+  Button, 
+  FormControl,
+  FormControlLabel,
+  RadioGroup,
+  Radio,
+  Tooltip,
+  styled,
+} from '@mui/material';
+import SportsScore from '@mui/icons-material/SportsScore';
 
-import useFetch from '../../hooks/useFetch';
+import { SinglePlayerContext } from '../../providers'
 import { AnimatedTitle, GameBoardPreview } from '../../components';
+import { GameModeEnum } from '../../types';
 
 const BaseContainer = styled(Box)({
   minHeight: '92vh',
@@ -18,33 +27,38 @@ const BaseContainer = styled(Box)({
 });
 
 const WelcomePage: React.FC = () => {
-  const { postData } = useFetch();
-  const navigateTo = useNavigate();
+  const { gameMode, setGameMode, startNewGame } = useContext(SinglePlayerContext);
 
-  const handleClickStartGame = useCallback(
-    async () => {
-      try {
-        const res = await postData('/api/rooms', null);
-        if (res) navigateTo(`/single-player/${res.roomId}`, { replace: true });
-      } catch (error) {
-        console.error(error);
-      }
+  const handleChangeGameMode = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setGameMode(e.target.value as GameModeEnum);
     },
-    [postData, navigateTo],
+    [],
   );
 
   return (
     <BaseContainer>
-      <Box sx={{ mb: 2 }}>
+      <Box>
         <AnimatedTitle text="TIC TAC TOE" />
       </Box>
 
       <GameBoardPreview />
 
+      <Box sx={{ mb: 2 }}>
+        <FormControl>
+          <RadioGroup row value={gameMode || GameModeEnum.SINGLE_GAME} onChange={handleChangeGameMode}>
+            <FormControlLabel control={<Radio />} value={GameModeEnum.SINGLE_GAME} label="Single Game" />
+            <Tooltip title="Not available yet">
+              <FormControlLabel control={<Radio />} label="Multiplayer" disabled />
+            </Tooltip>
+          </RadioGroup>
+        </FormControl>
+      </Box>
+
       <Button
         variant="outlined"
-        endIcon={<PlayCircleOutline />}
-        onClick={handleClickStartGame}
+        endIcon={<SportsScore />}
+        onClick={startNewGame}
       >
         Start Game
       </Button>
