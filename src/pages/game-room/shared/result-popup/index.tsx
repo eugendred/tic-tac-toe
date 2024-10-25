@@ -5,8 +5,8 @@ import EmojiEvents from '@mui/icons-material/EmojiEvents';
 import Handshake from '@mui/icons-material/Handshake';
 
 const WINNER = {
-  O: 'PC',
-  X: 'Player',
+  O: 'Player O',
+  X: 'Player X',
   DRAW: 'DRAW',
 } as any;
 
@@ -23,7 +23,7 @@ export const GameResultPopup: React.FC<GameResultPopupProps> = memo(({ winner })
     )}
     
     <Box sx={{ fontSize: '1.25rem' }}>
-      {`${WINNER[winner]} WIN`}
+      {`${WINNER[winner]}`}
     </Box>
   </Box>
 ));

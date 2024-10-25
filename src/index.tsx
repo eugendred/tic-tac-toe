@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import { ModalContextProvider } from './providers/modalProvider';
+import { ModalContextProvider, GameRoomContextProvider } from './providers';
 import { FallbackView } from './components';
 import App from './app.tsx';
 
@@ -27,7 +27,9 @@ createRoot(document.getElementById('root')!).render(
       <ThemeProvider theme={theme}>
         <ModalContextProvider>
           <BrowserRouter>
-            <App />
+            <GameRoomContextProvider>
+              <App />
+            </GameRoomContextProvider>
           </BrowserRouter>
         </ModalContextProvider>
       </ThemeProvider>

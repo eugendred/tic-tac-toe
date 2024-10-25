@@ -1,4 +1,4 @@
-import { GameLevelEnum, GameEvaluationResult } from '../types';
+import { GameModeEnum, GameLevelEnum, GameEvaluationResult } from '../types';
 
 import { sleep } from './common';
 
@@ -144,13 +144,25 @@ export const fakeController = async (endpoint: string, reqData: any): Promise<an
 
     case '/api/make-move': {
       await sleep(1000);
-      const { board, level } = reqData;
+
+      const { mode, board, level } = reqData;
       const gameState = evaluateGame(board);
+
+      if (mode === GameModeEnum.MULTIPLAYER) {
+        return {
+          data: {
+            gameState,
+            board,
+            moveIdx: null,
+          }
+        }
+      }
+
       if (gameState.isOver) {
         return {
           data: {
             gameState,
-            board: reqData.board,
+            board,
             moveIdx: null,
           }
         };

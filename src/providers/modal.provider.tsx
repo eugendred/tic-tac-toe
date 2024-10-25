@@ -16,7 +16,7 @@ export type ModalContextProps = {
 
 export const ModalContext = createContext<ModalContextProps>({} as ModalContextProps);
 
-const useComposeModal = () => {
+const useModalContextValues = () => {
   const [modalVisible, showModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: null });
 
@@ -53,7 +53,7 @@ const useComposeModal = () => {
 };
 
 export const ModalContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const values = useComposeModal();
+  const values = useModalContextValues();
 
   return (
     <ModalContext.Provider value={values}>

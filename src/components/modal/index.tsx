@@ -1,9 +1,9 @@
-import React, { useContext, memo } from 'react';
+import { memo } from 'react';
 
 import { Dialog, DialogTitle, DialogContent, IconButton, styled } from '@mui/material';
 import Close from '@mui/icons-material/Close';
 
-import { ModalContext } from '../../providers/modalProvider';
+import useModal from '../../hooks/useModal';
 
 const StyledDialog = styled(Dialog)({
   '& .MuiDialogTitle-root + .MuiDialogContent-root, & .MuiDialogContent-root': {
@@ -12,7 +12,7 @@ const StyledDialog = styled(Dialog)({
 });
 
 export const Modal: React.FC = memo(() => {
-  const { closeModal, modalVisible, modalContent } = useContext(ModalContext);
+  const { closeModal, modalVisible, modalContent } = useModal();
 
   return (
     <StyledDialog open={modalVisible} onClose={closeModal}>
