@@ -1,6 +1,7 @@
 export enum GameModeEnum {
-  SINGLE_GAME = 'SINGLE_GAME',
-  MULTIPLAYER = 'MULTIPLAYER',
+  SINGLE_PLAYER = 'single-player',
+  MULTIPLAYER = 'multiplayer',
+  ONLINE = 'online',
 };
 
 export enum GameLevelEnum {
@@ -9,7 +10,13 @@ export enum GameLevelEnum {
   HARD = 'HARD',
 };
 
+export enum GamePlayerEnum {
+  X = 'X',
+  O = 'O',
+};
+
 export type GameStateProps = {
+  player: GamePlayerEnum,
   isOver: boolean;
   winner: string;
   replaying: boolean;

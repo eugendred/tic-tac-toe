@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useContext, memo } from 'react';
+import { useCallback, useMemo, memo } from 'react';
 import { Box, styled } from '@mui/material';
 
-import { SinglePlayerContext } from '../../../../providers';
+import { useGameBoard } from '../../../../hooks';
 import { CircleIcon, XMarkIcon, Spinner } from '../../../../components/common';
 
 const StyledBoardContainer = styled(Box)({
@@ -79,17 +79,17 @@ const StyledPlayArea = styled(Box)({
 });
 
 export const GameBoard: React.FC = memo(() => {
-  const { boardSize, boardState, gameState, makeMove, addToHistory } = useContext(SinglePlayerContext);
+  const { boardSize, boardState, gameState, makeMove, addToHistory } = useGameBoard();
 
   const handleClickCell = useCallback(
     (idx: number) => () => {
       if (boardState[idx] || gameState.winner || gameState.isOver) return;
       const nextBoard: string[] = [...boardState];
-      nextBoard[idx] = 'X';
-      addToHistory('X', idx);
+      nextBoard[idx] = gameState.player;
+      addToHistory(gameState.player, idx);
       makeMove(nextBoard, idx);
     },
-    [boardState, gameState, makeMove, addToHistory],
+    [boardState, gameState, addToHistory, makeMove],
   );
 
   const boardCells = useMemo(

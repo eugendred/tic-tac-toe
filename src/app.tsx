@@ -1,31 +1,29 @@
 import { Suspense, memo, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import { SinglePlayerContextProvider } from './providers';
+import { GameBoardContextProvider } from './providers';
 import { BaseLayout, FallbackView } from './components';
 
 const NotFound = lazy(() => import('./pages/not-found'));
 const Welcome = lazy(() => import('./pages/welcome'));
-const SinglePlayer = lazy(() => import('./pages/single-player'));
+const GameRoom = lazy(() => import('./pages/game-room'));
 
 const App: React.FC = () => (
   <Routes>
     <Route element={<BaseLayout/>}>
       <Route index path="/" element={
         <Suspense fallback={<FallbackView />}>
-          <SinglePlayerContextProvider>
-            <Welcome />
-          </SinglePlayerContextProvider>
+          <Welcome />
         </Suspense>
       } />
 
-      <Route path="/single-player/:roomId" element={
-          <Suspense fallback={<FallbackView />}>
-            <SinglePlayerContextProvider>
-              <SinglePlayer />
-            </SinglePlayerContextProvider>
-          </Suspense>
-        } />
+      <Route path="/game-room" element={
+        <Suspense fallback={<FallbackView />}>
+          <GameBoardContextProvider>
+            <GameRoom />
+          </GameBoardContextProvider>
+        </Suspense>
+      } />
 
       <Route path="/not-found" element={
         <Suspense fallback={<FallbackView />}>

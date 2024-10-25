@@ -1,4 +1,4 @@
-import { useCallback, useContext, memo } from 'react';
+import { useCallback, memo } from 'react';
 
 import {
   Box,
@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import SportsScore from '@mui/icons-material/SportsScore';
 
-import { SinglePlayerContext } from '../../providers'
+import useGameRoom from '../../hooks/useGameRoom';
 import { AnimatedTitle, GameBoardPreview } from '../../components';
 import { GameModeEnum } from '../../types';
 
@@ -27,7 +27,7 @@ const BaseContainer = styled(Box)({
 });
 
 const WelcomePage: React.FC = () => {
-  const { gameMode, setGameMode, startNewGame } = useContext(SinglePlayerContext);
+  const { gameMode, setGameMode, startNewGame } = useGameRoom();
 
   const handleChangeGameMode = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,10 +46,15 @@ const WelcomePage: React.FC = () => {
 
       <Box sx={{ mb: 2 }}>
         <FormControl>
-          <RadioGroup row value={gameMode || GameModeEnum.SINGLE_GAME} onChange={handleChangeGameMode}>
-            <FormControlLabel control={<Radio />} value={GameModeEnum.SINGLE_GAME} label="Single Game" />
+          <RadioGroup
+            row
+            value={gameMode || GameModeEnum.SINGLE_PLAYER}
+            onChange={handleChangeGameMode}
+          >
+            <FormControlLabel control={<Radio />} value={GameModeEnum.SINGLE_PLAYER} label="Single Player" />
+            <FormControlLabel control={<Radio />} value={GameModeEnum.MULTIPLAYER} label="Multiplayer" />
             <Tooltip title="Not available yet">
-              <FormControlLabel control={<Radio />} label="Multiplayer" disabled />
+              <FormControlLabel control={<Radio />} label="Online" disabled />
             </Tooltip>
           </RadioGroup>
         </FormControl>

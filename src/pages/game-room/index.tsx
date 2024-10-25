@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useContext, useMemo, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, memo } from 'react';
 
 import {
   Box,
@@ -15,9 +14,8 @@ import {
 } from '@mui/material';
 import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-material';
 
-import { SinglePlayerContext, ModalContext } from '../../providers';
-import useWindowSize from '../../hooks/useWindowSize';
-import { GameLevelEnum } from '../../types';
+import { useGameBoard, useModal, useWindowSize } from '../../hooks';
+import { GameModeEnum, GameLevelEnum } from '../../types';
 
 import { GameBoard, GameResultPopup } from './shared';
 
@@ -39,9 +37,10 @@ const StyledButton = styled(Button)({
   },
 })
 
-const SinglePlayer: React.FC = () => {
-  const { handleModal } = useContext(ModalContext);
+const GameRoom: React.FC = () => {
+  const { handleModal } = useModal();
   const {
+    gameMode,
     boardSize,
     boardState,
     gameState,
@@ -51,10 +50,12 @@ const SinglePlayer: React.FC = () => {
     restartGame,
     replayGame,
     undoMove,
-  } = useContext(SinglePlayerContext);
+    backToHome,
+  } = useGameBoard();
   const { width } = useWindowSize();
-  const navigateTo = useNavigate();
 
+  const isSinglePlayerGame = useMemo(() => gameMode === GameModeEnum.SINGLE_PLAYER, [gameMode]);
+  const isMultiplayerGame = useMemo(() => gameMode === GameModeEnum.MULTIPLAYER, [gameMode]);
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
 
   const handleChangeBoardSize = useCallback(
@@ -66,14 +67,9 @@ const SinglePlayer: React.FC = () => {
 
   const handleChangeGameLevel = useCallback(
     (e: any) => {
-      if (!gameStarted) setGameLevel(e.target.value);
+      if (isSinglePlayerGame && !gameStarted) setGameLevel(e.target.value);
     },
-    [gameStarted],
-  );
-
-  const handleGoBack = useCallback(
-    () => navigateTo('/'),
-    [navigateTo],
+    [gameStarted, isSinglePlayerGame],
   );
 
   useEffect(() => {
@@ -91,10 +87,11 @@ const SinglePlayer: React.FC = () => {
         <ButtonGroup variant="outlined">
           <StyledButton
             startIcon={<ArrowBackIos />}
-            onClick={handleGoBack}
+            onClick={backToHome}
           >
             {width > 576 ? 'Back' : ''}
           </StyledButton>
+
           <StyledButton
             disabled={!gameStarted || gameState.replaying}
             startIcon={<PlayCircleOutline />}
@@ -102,13 +99,17 @@ const SinglePlayer: React.FC = () => {
           >
             {width > 576 ? 'Restart' : ''}
           </StyledButton>
-          <StyledButton
-            disabled={!gameStarted || gameState.replaying}
-            startIcon={<Undo />}
-            onClick={undoMove}
-          >
-            {width > 576 ? 'Undo' : ''}
-          </StyledButton>
+
+          {isSinglePlayerGame ? (
+            <StyledButton
+              disabled={!gameStarted || gameState.replaying}
+              startIcon={<Undo />}
+              onClick={undoMove}
+            >
+              {width > 576 ? 'Undo' : ''}
+            </StyledButton>
+          ) : null}
+
           <StyledButton
             disabled={!gameState.isOver || gameState.replaying}
             startIcon={<RestartAlt />}
@@ -119,7 +120,7 @@ const SinglePlayer: React.FC = () => {
         </ButtonGroup>
       </Box>
 
-      <Box sx={{ mb: 1 }}>
+      <Box sx={{ mb: 0.25 }}>
         <FormControl>
           <FormLabel>Game Size:</FormLabel>
           <RadioGroup row value={boardSize || 3} onChange={handleChangeBoardSize}>
@@ -134,20 +135,30 @@ const SinglePlayer: React.FC = () => {
         </FormControl>
       </Box>
 
-      <Box sx={{ mb: 1 }}>
-        <FormControl>
-          <FormLabel>Game Level:</FormLabel>
-          <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
-            <FormControlLabel control={<Radio />} value={GameLevelEnum.EASY} label="Easy" />
-            <FormControlLabel control={<Radio />} value={GameLevelEnum.MEDIUM} label="Medium" />
-            <FormControlLabel control={<Radio />} value={GameLevelEnum.HARD} label="Hard" />
-          </RadioGroup>
-        </FormControl>
-      </Box>
+      {isSinglePlayerGame ? (
+        <Box sx={{ mb: 0.25 }}>
+          <FormControl>
+            <FormLabel>Game Level:</FormLabel>
+            <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
+              <FormControlLabel control={<Radio />} value={GameLevelEnum.EASY} label="Easy" />
+              <FormControlLabel control={<Radio />} value={GameLevelEnum.MEDIUM} label="Medium" />
+              <FormControlLabel control={<Radio />} value={GameLevelEnum.HARD} label="Hard" />
+            </RadioGroup>
+          </FormControl>
+        </Box>
+      ) : null}
+
+      {isMultiplayerGame ? (
+        <Box sx={{ mb: 1 }}>
+          <FormControl>
+            <FormLabel>Player {gameState.player} Move</FormLabel>
+          </FormControl>
+        </Box>
+      ) : null}
 
       <GameBoard />
     </StyledGameLayout>
   );
 };
 
-export default memo(SinglePlayer);
+export default memo(GameRoom);
