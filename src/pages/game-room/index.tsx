@@ -79,7 +79,7 @@ const GameRoom: React.FC = () => {
         body: <GameResultPopup winner={gameState.winner} />
       });
     }
-  }, [gameState.isOver, handleModal]);
+  }, [gameState.isOver, gameState.winner, handleModal]);
 
   return (
     <StyledGameLayout>
@@ -140,9 +140,24 @@ const GameRoom: React.FC = () => {
           <FormControl>
             <FormLabel>Game Level:</FormLabel>
             <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
-              <FormControlLabel control={<Radio />} value={GameLevelEnum.EASY} label="Easy" />
-              <FormControlLabel control={<Radio />} value={GameLevelEnum.MEDIUM} label="Medium" />
-              <FormControlLabel control={<Radio />} value={GameLevelEnum.HARD} label="Hard" />
+              <FormControlLabel
+                disabled={gameStarted}
+                control={<Radio />}
+                value={GameLevelEnum.EASY}
+                label="Easy"
+              />
+              <FormControlLabel
+                disabled={gameStarted}
+                control={<Radio />}
+                value={GameLevelEnum.MEDIUM}
+                label="Medium"
+              />
+              <FormControlLabel
+                disabled={gameStarted}
+                control={<Radio />}
+                value={GameLevelEnum.HARD}
+                label="Hard"
+              />
             </RadioGroup>
           </FormControl>
         </Box>
