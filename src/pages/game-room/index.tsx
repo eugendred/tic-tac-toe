@@ -141,19 +141,19 @@ const GameRoom: React.FC = () => {
             <FormLabel>Game Level:</FormLabel>
             <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
               <FormControlLabel
-                disabled={gameStarted}
+                disabled={gameStarted && !gameState.isOver}
                 control={<Radio />}
                 value={GameLevelEnum.EASY}
                 label="Easy"
               />
               <FormControlLabel
-                disabled={gameStarted}
+                disabled={gameStarted && !gameState.isOver}
                 control={<Radio />}
                 value={GameLevelEnum.MEDIUM}
                 label="Medium"
               />
               <FormControlLabel
-                disabled={gameStarted}
+                disabled={gameStarted && !gameState.isOver}
                 control={<Radio />}
                 value={GameLevelEnum.HARD}
                 label="Hard"
