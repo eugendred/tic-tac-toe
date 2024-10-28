@@ -1,13 +1,18 @@
 export enum GameModeEnum {
   SINGLE_PLAYER = 'single-player',
   MULTIPLAYER = 'multiplayer',
-  ONLINE = 'online',
+  LIVE = 'live',
 };
 
 export enum GameLevelEnum {
   EASY = 'EASY',
   MEDIUM = 'MEDIUM',
   HARD = 'HARD',
+};
+
+export enum GameSizeEnum {
+  DEFAULT = 3,
+  EXTENDED = 4,
 };
 
 export enum GamePlayerEnum {
@@ -26,4 +31,9 @@ export type GameStateProps = {
 export type GameEvaluationResult = {
   isOver: boolean;
   winner: string;
+};
+
+export type GameSettings = {
+  mode: GameModeEnum;
+  size: GameSizeEnum;
 };

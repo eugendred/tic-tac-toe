@@ -9,7 +9,6 @@ import {
   FormLabel,
   RadioGroup,
   Radio,
-  Tooltip,
   styled
 } from '@mui/material';
 import { ArrowBackIos, RestartAlt, PlayCircleOutline, Undo } from '@mui/icons-material';
@@ -40,12 +39,10 @@ const StyledButton = styled(Button)({
 const GameRoom: React.FC = () => {
   const { handleModal } = useModal();
   const {
-    gameMode,
-    boardSize,
+    gameSettings,
     boardState,
     gameState,
     gameLevel,
-    setBoardSize,
     setGameLevel,
     restartGame,
     replayGame,
@@ -54,22 +51,15 @@ const GameRoom: React.FC = () => {
   } = useGameBoard();
   const { width } = useWindowSize();
 
-  const isSinglePlayerGame = useMemo(() => gameMode === GameModeEnum.SINGLE_PLAYER, [gameMode]);
-  const isMultiplayerGame = useMemo(() => gameMode === GameModeEnum.MULTIPLAYER, [gameMode]);
+  const isSinglePlayerGame = useMemo(() => gameSettings.mode === GameModeEnum.SINGLE_PLAYER, [gameSettings.mode]);
+  const isMultiplayerGame = useMemo(() => gameSettings.mode === GameModeEnum.MULTIPLAYER, [gameSettings.mode]);
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
-
-  const handleChangeBoardSize = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!gameStarted) setBoardSize(Number(e.target.value));
-    },
-    [gameStarted],
-  );
 
   const handleChangeGameLevel = useCallback(
     (e: any) => {
       if (isSinglePlayerGame && !gameStarted) setGameLevel(e.target.value);
     },
-    [gameStarted, isSinglePlayerGame],
+    [gameStarted, isSinglePlayerGame, setGameLevel],
   );
 
   useEffect(() => {
@@ -120,23 +110,8 @@ const GameRoom: React.FC = () => {
         </ButtonGroup>
       </Box>
 
-      <Box sx={{ mb: 0.25 }}>
-        <FormControl>
-          <FormLabel>Game Size:</FormLabel>
-          <RadioGroup row value={boardSize || 3} onChange={handleChangeBoardSize}>
-            <FormControlLabel control={<Radio />} value={3} label="3x3" />
-            <Tooltip title="Not available yet">
-              <FormControlLabel control={<Radio />} label="4x4" disabled />
-            </Tooltip>
-            <Tooltip title="Not available yet">
-              <FormControlLabel control={<Radio />} label="5x5" disabled />
-            </Tooltip>
-          </RadioGroup>
-        </FormControl>
-      </Box>
-
       {isSinglePlayerGame ? (
-        <Box sx={{ mb: 0.25 }}>
+        <Box sx={{ mb: 0.5 }}>
           <FormControl>
             <FormLabel>Game Level:</FormLabel>
             <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
@@ -166,7 +141,7 @@ const GameRoom: React.FC = () => {
       {isMultiplayerGame ? (
         <Box sx={{ mb: 1 }}>
           <FormControl>
-            <FormLabel>Player {gameState.player} Move</FormLabel>
+            <FormLabel>Player's Turn: {gameState.player}</FormLabel>
           </FormControl>
         </Box>
       ) : null}

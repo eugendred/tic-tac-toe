@@ -23,7 +23,7 @@ const BoardPreviewContainer = styled(Box)({
 export const GameBoardPreview: React.FC = () => {
   const boardCells = useMemo(
     () => (
-      ['O','','X','','O','','X','','O'].map((value, idx) => (
+      ['X','','O','','X','','O','','X'].map((value, idx) => (
         <span key={idx} className="board-cell">
           {value === 'O' ? <CircleIcon infinite /> : value === 'X' ? <XMarkIcon infinite /> : ''}
         </span>

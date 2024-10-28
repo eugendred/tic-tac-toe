@@ -10,9 +10,8 @@ import {
 
 import { useFetch, useGameRoom } from '../hooks';
 import { GameHistoryAction, IGameHistoryAction } from '../utils';
-import { GameStateProps, GameModeEnum, GameLevelEnum, GamePlayerEnum } from '../types';
+import { GameStateProps, GameModeEnum, GameLevelEnum, GamePlayerEnum, GameSettings } from '../types';
 
-const DEFAULT_BOARD_SIZE = 3;
 const DEFAULT_GAME_STATE = Object.freeze({
   player: GamePlayerEnum.X,
   winner: '',
@@ -22,13 +21,11 @@ const DEFAULT_GAME_STATE = Object.freeze({
 });
 
 export type GameBoardContextProps = {
-  readonly boardSize: number;
+  readonly gameSettings: GameSettings;
   readonly boardState: string[];
   readonly gameState: GameStateProps;
   readonly gameLevel: GameLevelEnum;
-  readonly gameMode: GameModeEnum;
   readonly gameHistory: IGameHistoryAction[];
-  setBoardSize: (size: number) => void;
   setGameLevel: (level: GameLevelEnum) => void,
   setLoading: (loading: boolean) => void,
   setReplaying: (state: boolean) => void,
@@ -46,17 +43,16 @@ export const GameBoardContext = createContext<GameBoardContextProps>({} as GameB
 
 const useGameBoardContextValues = () => {
   const { postData } = useFetch();
-  const { gameMode, backToHome } = useGameRoom();
-  const [boardSize, setBoardSize] = useState(DEFAULT_BOARD_SIZE);
-  const [boardState, setBoardState] = useState(Array.from({ length: boardSize * boardSize }).fill('') as string[]);
+  const { gameSettings, backToHome } = useGameRoom();
+  const [boardState, setBoardState] = useState(Array.from({ length: gameSettings.size ** 2 }).fill('') as string[]);
   const [gameHistory, setGameHistory] = useState([] as GameHistoryAction[]);
   const [gameLevel, setGameLevel] = useState(GameLevelEnum.EASY);
   const [gameState, setGameState] = useState({ ...DEFAULT_GAME_STATE } as GameStateProps);
   const timeoutRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
 
-  const resetBoardState = (boardSize: number) => {
-    setBoardState(Array.from({ length: boardSize * boardSize }).fill('') as string[]);
+  const resetBoardState = (size: number) => {
+    setBoardState(Array.from({ length: size ** 2 }).fill('') as string[]);
   };
 
   const resetGameState = () => {
@@ -72,9 +68,9 @@ const useGameBoardContextValues = () => {
 
   const validatePlayerMove = useCallback(
     async (board: string[]) => {
-      return postData('/api/make-move', { mode: gameMode, board, level: gameLevel });
+      return postData('/api/make-move', { mode: gameSettings.mode, board, level: gameLevel });
     },
-    [gameMode, gameLevel, postData],
+    [gameSettings.mode, gameLevel, postData],
   );
 
   const setLoading = useCallback(
@@ -101,10 +97,10 @@ const useGameBoardContextValues = () => {
   const initGame = useCallback(
     () => {
       resetGameState();
-      resetBoardState(boardSize);
+      resetBoardState(gameSettings.size);
       setGameHistory([]);
     },
-    [boardSize],
+    [gameSettings.size],
   );
 
   const restartGame = useCallback(
@@ -127,10 +123,10 @@ const useGameBoardContextValues = () => {
         if (res) {
           setBoardState([...res.board]);
           setGameState((prev) => ({ ...prev, ...res.gameState }));
-          addToHistory(gameState.player, res.moveIdx);
-          if (gameMode === GameModeEnum.MULTIPLAYER) {
+          if (gameSettings.mode === GameModeEnum.MULTIPLAYER) {
             passMoveToPlayer(gameState.player === GamePlayerEnum.X ? GamePlayerEnum.O : GamePlayerEnum.X);
           }
+          addToHistory(GamePlayerEnum.O, res.moveIdx);
         }
       } catch (error) {
         console.error(error);
@@ -138,12 +134,12 @@ const useGameBoardContextValues = () => {
         setLoading(false);
       }
     },
-    [gameMode, gameState.player, validatePlayerMove, addToHistory, setLoading, passMoveToPlayer],
+    [gameSettings.mode, gameState.player, validatePlayerMove, addToHistory, setLoading, passMoveToPlayer],
   );
 
   const undoMove = useCallback(
     () => {
-      if (gameState.replaying) return;
+      if (gameSettings.mode !== GameModeEnum.SINGLE_PLAYER || gameState.replaying) return;
       setBoardState((prev) => {
         const [lastMoveX, lastMoveO]: Array<GameHistoryAction> = gameHistory.slice(-2);
         if (!lastMoveX || !lastMoveO) return prev;
@@ -155,13 +151,13 @@ const useGameBoardContextValues = () => {
       setGameHistory(() => gameHistory.slice(0, -2));
       if (gameState.isOver) resetGameState();
     },
-    [gameState.replaying, gameState.isOver, gameHistory],
+    [gameSettings.mode, gameState.replaying, gameState.isOver, gameHistory],
   );
 
   const replayGame = useCallback(
     () => {
       setReplaying(true);
-      resetBoardState(boardSize);
+      resetBoardState(gameSettings.size);
       const moves = [...gameHistory];
       intervalRef.current = setInterval(() => {
         const move: any = moves.shift();
@@ -177,12 +173,12 @@ const useGameBoardContextValues = () => {
         }
       }, 1000);
     },
-    [boardSize, gameHistory, setReplaying],
+    [gameSettings.size, gameHistory, setReplaying],
   );
 
   useEffect(() => {
-    resetBoardState(boardSize);
-  }, [boardSize]);
+    resetBoardState(gameSettings.size);
+  }, [gameSettings.size]);
 
   useEffect(() => {
     return () => {
@@ -193,13 +189,12 @@ const useGameBoardContextValues = () => {
 
   const memoedValues: GameBoardContextProps = useMemo(
     () => ({
-      boardSize,
+
       boardState,
       gameState,
       gameLevel,
-      gameMode,
+      gameSettings,
       gameHistory,
-      setBoardSize,
       setGameLevel,
       setLoading,
       setReplaying,
@@ -213,13 +208,11 @@ const useGameBoardContextValues = () => {
       backToHome,
     }),
     [
-      boardSize,
       boardState,
       gameState,
       gameLevel,
-      gameMode,
+      gameSettings,
       gameHistory,
-      setBoardSize,
       setGameLevel,
       setLoading,
       setReplaying,

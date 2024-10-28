@@ -57,11 +57,11 @@
     90% { transform: translateY(-8vh) scaleY(3); }
   }
 
-  @media (max-width: 640px) {
-    font-size: 4.5rem;
+  @media (max-width: 680px) {
+    font-size: 4.25rem;
   }
 
   @media (max-width: 480px) {
-    font-size: 2.875rem;
+    font-size: 2.575rem;
   }
 }

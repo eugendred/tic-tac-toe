@@ -79,7 +79,7 @@ const StyledPlayArea = styled(Box)({
 });
 
 export const GameBoard: React.FC = memo(() => {
-  const { boardSize, boardState, gameState, makeMove, addToHistory } = useGameBoard();
+  const { gameSettings, boardState, gameState, makeMove, addToHistory } = useGameBoard();
 
   const handleClickCell = useCallback(
     (idx: number) => () => {
@@ -121,8 +121,8 @@ export const GameBoard: React.FC = memo(() => {
 
       <StyledPlayArea
         sx={{
-          gridTemplateRows: `repeat(${boardSize}, 1fr)`,
-          gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
+          gridTemplateRows: `repeat(${gameSettings.size}, 1fr)`,
+          gridTemplateColumns: `repeat(${gameSettings.size}, 1fr)`,
         }}
       >
         {boardCells}
