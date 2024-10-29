@@ -43,6 +43,7 @@ const GameRoom: React.FC = () => {
     boardState,
     gameState,
     gameLevel,
+    playerTurn,
     setGameLevel,
     restartGame,
     replayGame,
@@ -52,7 +53,6 @@ const GameRoom: React.FC = () => {
   const { width } = useWindowSize();
 
   const isSinglePlayerGame = useMemo(() => gameSettings.mode === GameModeEnum.SINGLE_PLAYER, [gameSettings.mode]);
-  const isMultiplayerGame = useMemo(() => gameSettings.mode === GameModeEnum.MULTIPLAYER, [gameSettings.mode]);
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
 
   const handleChangeGameLevel = useCallback(
@@ -138,13 +138,11 @@ const GameRoom: React.FC = () => {
         </Box>
       ) : null}
 
-      {isMultiplayerGame ? (
-        <Box sx={{ mb: 1 }}>
-          <FormControl>
-            <FormLabel>Player's Turn: {gameState.player}</FormLabel>
-          </FormControl>
-        </Box>
-      ) : null}
+      <Box sx={{ mb: 1 }}>
+        <FormControl>
+          <FormLabel>Player's Turn: {playerTurn}</FormLabel>
+        </FormControl>
+      </Box>
 
       <GameBoard />
     </StyledGameLayout>

@@ -21,7 +21,6 @@ export enum GamePlayerEnum {
 };
 
 export type GameStateProps = {
-  player: GamePlayerEnum,
   isOver: boolean;
   winner: string;
   replaying: boolean;

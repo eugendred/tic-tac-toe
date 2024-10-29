@@ -9,11 +9,10 @@ import {
 } from 'react';
 
 import { useFetch, useGameRoom } from '../hooks';
-import { GameHistoryAction, IGameHistoryAction } from '../utils';
+import { GameHistoryAction } from '../utils';
 import { GameStateProps, GameModeEnum, GameLevelEnum, GamePlayerEnum, GameSettings } from '../types';
 
 const DEFAULT_GAME_STATE = Object.freeze({
-  player: GamePlayerEnum.X,
   winner: '',
   isOver: false,
   replaying: false,
@@ -25,18 +24,13 @@ export type GameBoardContextProps = {
   readonly boardState: string[];
   readonly gameState: GameStateProps;
   readonly gameLevel: GameLevelEnum;
-  readonly gameHistory: IGameHistoryAction[];
+  readonly playerTurn: GamePlayerEnum;
   setGameLevel: (level: GameLevelEnum) => void,
-  setLoading: (loading: boolean) => void,
-  setReplaying: (state: boolean) => void,
-  addToHistory: (player: string, position: number) => void,
-  initGame: () => void,
   restartGame: () => void,
   replayGame: () => void,
-  makeMove: (state: string[], moveIdx: number) => Promise<void>,
   undoMove: () => void,
-  passMoveToPlayer: (player: GamePlayerEnum) => void;
   backToHome: () => void;
+  makeMove: (moveIdx: number) => Promise<void>,
 };
 
 export const GameBoardContext = createContext<GameBoardContextProps>({} as GameBoardContextProps);
@@ -48,20 +42,23 @@ const useGameBoardContextValues = () => {
   const [gameHistory, setGameHistory] = useState([] as GameHistoryAction[]);
   const [gameLevel, setGameLevel] = useState(GameLevelEnum.EASY);
   const [gameState, setGameState] = useState({ ...DEFAULT_GAME_STATE } as GameStateProps);
-  const timeoutRef = useRef<any>(null);
+  const [playerTurn, setPlayerTurn] = useState(GamePlayerEnum.X);
   const intervalRef = useRef<any>(null);
 
   const resetBoardState = (size: number) => {
     setBoardState(Array.from({ length: size ** 2 }).fill('') as string[]);
+    setPlayerTurn(GamePlayerEnum.X);
   };
 
   const resetGameState = () => {
     setGameState({ ...DEFAULT_GAME_STATE });
   };
 
-  const passMoveToPlayer = useCallback(
-    (player: GamePlayerEnum) => {
-      setGameState((prev) => ({ ...prev, player }));
+  const turnMoveToPlayer = useCallback(
+    (player?: GamePlayerEnum) => {
+      setPlayerTurn((prev) => {
+        return player || prev === GamePlayerEnum.X ? GamePlayerEnum.O : GamePlayerEnum.X;
+      });
     },
     [],
   );
@@ -88,8 +85,8 @@ const useGameBoardContextValues = () => {
   );
 
   const addToHistory = useCallback(
-    (player: string, position: number) => {
-      setGameHistory((prev) => ([ ...prev, new GameHistoryAction(player, position)]));
+    (player: GamePlayerEnum, idx: number) => {
+      setGameHistory((prev) => ([ ...prev, new GameHistoryAction(player, idx)]));
     },
     [],
   );
@@ -104,37 +101,19 @@ const useGameBoardContextValues = () => {
   );
 
   const restartGame = useCallback(
-    () => {
+    async () => {
       if (gameState.replaying) return;
-      setLoading(true);
-      timeoutRef.current = setTimeout(() => {
-        initGame();
-        setLoading(false);
-      }, 1000);
-    },
-    [gameState.replaying, initGame, setLoading],
-  );
-
-  const makeMove = useCallback(
-    async (nextState: string[]): Promise<void> => {
       try {
         setLoading(true);
-        const res = await validatePlayerMove(nextState);
-        if (res) {
-          setBoardState([...res.board]);
-          setGameState((prev) => ({ ...prev, ...res.gameState }));
-          if (gameSettings.mode === GameModeEnum.MULTIPLAYER) {
-            passMoveToPlayer(gameState.player === GamePlayerEnum.X ? GamePlayerEnum.O : GamePlayerEnum.X);
-          }
-          addToHistory(GamePlayerEnum.O, res.moveIdx);
-        }
+        await postData('/api/new-game', null);
+        initGame();
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     },
-    [gameSettings.mode, gameState.player, validatePlayerMove, addToHistory, setLoading, passMoveToPlayer],
+    [gameState.replaying, setLoading, postData, initGame],
   );
 
   const undoMove = useCallback(
@@ -149,7 +128,9 @@ const useGameBoardContextValues = () => {
         return next;
       });
       setGameHistory(() => gameHistory.slice(0, -2));
-      if (gameState.isOver) resetGameState();
+      if (gameState.isOver) {
+        resetGameState();
+      }
     },
     [gameSettings.mode, gameState.replaying, gameState.isOver, gameHistory],
   );
@@ -176,35 +157,63 @@ const useGameBoardContextValues = () => {
     [gameSettings.size, gameHistory, setReplaying],
   );
 
+  const makeMove = useCallback(
+    async (moveIdx: number): Promise<void> => {
+      const nextBoard: string[] = [...boardState];
+      nextBoard[moveIdx] = playerTurn;
+      setBoardState(nextBoard);
+      addToHistory(playerTurn, moveIdx);
+      turnMoveToPlayer();
+
+      try {
+        setLoading(true);
+        const res = await validatePlayerMove(nextBoard);
+        if (!res) return;
+        setGameState((prev) => ({ ...prev, ...res.gameState }));
+        setBoardState([...res.board]);
+        if (gameSettings.mode === GameModeEnum.SINGLE_PLAYER) {
+          addToHistory(GamePlayerEnum.O, res.moveIdx);
+          turnMoveToPlayer();
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      boardState,
+      playerTurn,
+      gameSettings.mode,
+      setLoading,
+      validatePlayerMove,
+      turnMoveToPlayer,
+      addToHistory,
+    ],
+  );
+
   useEffect(() => {
     resetBoardState(gameSettings.size);
   }, [gameSettings.size]);
 
   useEffect(() => {
     return () => {
-      clearTimeout(timeoutRef.current);
       clearInterval(intervalRef.current);
     };
   }, []);
 
   const memoedValues: GameBoardContextProps = useMemo(
     () => ({
-
       boardState,
       gameState,
       gameLevel,
       gameSettings,
-      gameHistory,
+      playerTurn,
       setGameLevel,
-      setLoading,
-      setReplaying,
-      addToHistory,
-      initGame,
       restartGame,
       replayGame,
-      makeMove,
       undoMove,
-      passMoveToPlayer,
+      makeMove,
       backToHome,
     }),
     [
@@ -212,17 +221,12 @@ const useGameBoardContextValues = () => {
       gameState,
       gameLevel,
       gameSettings,
-      gameHistory,
+      playerTurn,
       setGameLevel,
-      setLoading,
-      setReplaying,
-      addToHistory,
-      initGame,
       restartGame,
       replayGame,
-      makeMove,
       undoMove,
-      passMoveToPlayer,
+      makeMove,
       backToHome,
     ],
   );

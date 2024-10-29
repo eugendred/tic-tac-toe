@@ -31,7 +31,7 @@ const useGameRoomContextValues = () => {
         const res = await postData('/api/rooms', null);
         if (res) {
           let routePath = '/game-room';
-          if (gameSettings.mode === GameModeEnum.ONLINE) {
+          if (gameSettings.mode === GameModeEnum.LIVE) {
             routePath += `/${res.roomId}?size=${gameSettings.size}`;
           } else {
             routePath += `?mode=${gameSettings.mode}&size=${gameSettings.size}`;
@@ -62,7 +62,7 @@ const useGameRoomContextValues = () => {
     () => {
       setGameSettings((prev) => {
         const next = { ...prev } as GameSettings;
-        next.mode = roomId ? GameModeEnum.ONLINE : (queryParams.get('mode') || GameModeEnum.SINGLE_PLAYER) as GameModeEnum;
+        next.mode = roomId ? GameModeEnum.LIVE : (queryParams.get('mode') || GameModeEnum.SINGLE_PLAYER) as GameModeEnum;
         next.size = Number(queryParams.get('size')) || GameSizeEnum.DEFAULT;
         return next;
       });

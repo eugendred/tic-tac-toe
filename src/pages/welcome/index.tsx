@@ -70,8 +70,17 @@ const WelcomePage: React.FC = () => {
             value={gameSettings.size || GameSizeEnum.DEFAULT}
             onChange={handleChangeGameSettings}
           >
-            <FormControlLabel control={<Radio />} value={GameSizeEnum.DEFAULT} label="3x3" />
-            <FormControlLabel control={<Radio />} value={GameSizeEnum.EXTENDED} label="4x4" disabled />
+            <FormControlLabel
+              label="3x3"
+              control={<Radio />}
+              value={GameSizeEnum.DEFAULT}
+            />
+            <FormControlLabel
+              disabled={gameSettings.mode !== GameModeEnum.MULTIPLAYER}
+              label="4x4"
+              control={<Radio />}
+              value={GameSizeEnum.EXTENDED}
+            />
           </RadioGroup>
         </FormControl>
       </Box>

@@ -183,6 +183,15 @@ export const fakeController = async (endpoint: string, reqData: any): Promise<an
       }
     }
 
+    case '/api/new-game': {
+      await sleep(1000);
+      return {
+        data: {
+          success: true,
+        }
+      }
+    }
+
     default:
       return {
         status: 404,
