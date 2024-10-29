@@ -43,7 +43,6 @@ const useGameBoardContextValues = () => {
   const [gameLevel, setGameLevel] = useState(GameLevelEnum.EASY);
   const [gameState, setGameState] = useState({ ...DEFAULT_GAME_STATE } as GameStateProps);
   const [playerTurn, setPlayerTurn] = useState(GamePlayerEnum.X);
-  const timeoutRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
 
   const resetBoardState = (size: number) => {
@@ -102,15 +101,19 @@ const useGameBoardContextValues = () => {
   );
 
   const restartGame = useCallback(
-    () => {
+    async () => {
       if (gameState.replaying) return;
-      setLoading(true);
-      timeoutRef.current = setTimeout(() => {
+      try {
+        setLoading(true);
+        await postData('/api/new-game', null);
         initGame();
+      } catch (error) {
+        console.error(error);
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     },
-    [gameState.replaying, initGame, setLoading],
+    [gameState.replaying, setLoading, postData, initGame],
   );
 
   const undoMove = useCallback(
@@ -195,14 +198,9 @@ const useGameBoardContextValues = () => {
 
   useEffect(() => {
     return () => {
-      clearTimeout(timeoutRef.current);
       clearInterval(intervalRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    console.log('playerTurn:', playerTurn);
-  }, [playerTurn]);
 
   const memoedValues: GameBoardContextProps = useMemo(
     () => ({
