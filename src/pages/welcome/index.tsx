@@ -32,7 +32,14 @@ const WelcomePage: React.FC = () => {
 
   const handleChangeGameSettings = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setGameSettings((prev: GameSettings) => ({ ...prev, [e.target.name]: e.target.value }));
+      setGameSettings((prev: GameSettings) => {
+        const { name, value } = e.target;
+        const next = { ...prev, [name]: value };
+        if (value === GameModeEnum.SINGLE_PLAYER) {
+          next.size = GameSizeEnum.DEFAULT;
+        }
+        return next;
+      });
     },
     [setGameSettings],
   );
