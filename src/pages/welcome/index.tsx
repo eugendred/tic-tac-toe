@@ -82,12 +82,14 @@ const WelcomePage: React.FC = () => {
               control={<Radio />}
               value={GameSizeEnum.DEFAULT}
             />
-            <FormControlLabel
-              disabled={gameSettings.mode !== GameModeEnum.MULTIPLAYER}
-              label="4x4"
-              control={<Radio />}
-              value={GameSizeEnum.EXTENDED}
-            />
+            <Tooltip title="Not available yet">
+              <FormControlLabel
+                disabled
+                label="4x4"
+                control={<Radio />}
+                value={GameSizeEnum.EXTENDED}
+              />
+            </Tooltip>
           </RadioGroup>
         </FormControl>
       </Box>

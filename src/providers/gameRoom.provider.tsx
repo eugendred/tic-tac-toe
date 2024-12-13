@@ -7,7 +7,7 @@ import useFetch from '../hooks/useFetch';
 const DEFAULT_GAME_SETTINGS = Object.freeze({
   mode: GameModeEnum.SINGLE_PLAYER,
   size: GameSizeEnum.DEFAULT,
-});
+} as GameSettings);
 
 export type GameRoomContextProps = {
   readonly gameSettings: GameSettings;

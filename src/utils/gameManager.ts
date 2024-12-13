@@ -5,12 +5,12 @@ import { sleep } from './common';
 export const getGamePrecision = (level: GameLevelEnum): number => {
   switch (level) {
     case GameLevelEnum.HARD:
-      return 92;
+      return 90;
     case GameLevelEnum.MEDIUM:
-      return 68;
+      return 75;
     case GameLevelEnum.EASY:
     default:
-      return 36;
+      return 46;
   }
 };
 
