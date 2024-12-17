@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import { ModalContextProvider, GameRoomContextProvider } from './providers';
-import { FallbackView } from './components';
+import { FallbackView, SnowfallLayout } from './components';
 import App from './app.tsx';
 
 import './index.scss';
@@ -24,6 +24,7 @@ const theme = createTheme({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Suspense fallback={<FallbackView />}>
+      <SnowfallLayout />
       <ThemeProvider theme={theme}>
         <ModalContextProvider>
           <BrowserRouter>

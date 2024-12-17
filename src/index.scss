@@ -1,15 +1,16 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900");
 
 html, body {
-  background-color: #fff;
+  background-color: darkgray;
   font-family: Arial;
   margin: 0;
   padding: 0;
-  width: 100%;
   height: 100vh;
+  width: 100vw;
 }
 
 #root {
+  box-shadow: inset 0px 0px 14px 5px rgba(0,0,0,0.7);
   position: relative;
   width: 100%;
   height: 100%;

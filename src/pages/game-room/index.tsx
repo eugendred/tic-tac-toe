@@ -55,6 +55,10 @@ const GameRoom: React.FC = () => {
   const isSinglePlayerGame = useMemo(() => gameSettings.mode === GameModeEnum.SINGLE_PLAYER, [gameSettings.mode]);
   const gameStarted = useMemo(() => boardState.some((el) => el !== ''), [boardState]);
 
+  const disableLevels = useMemo(() => {
+    return (gameStarted && !gameState.isOver) || gameState.replaying;
+  }, [gameStarted, gameState.isOver, gameState.replaying]);
+
   const handleChangeGameLevel = useCallback(
     (e: any) => {
       if (isSinglePlayerGame && !gameStarted) setGameLevel(e.target.value);
@@ -116,19 +120,19 @@ const GameRoom: React.FC = () => {
             <FormLabel>Game Level:</FormLabel>
             <RadioGroup row value={gameLevel || GameLevelEnum.EASY} onChange={handleChangeGameLevel}>
               <FormControlLabel
-                disabled={gameStarted && !gameState.isOver}
+                disabled={disableLevels}
                 control={<Radio />}
                 value={GameLevelEnum.EASY}
                 label="Easy"
               />
               <FormControlLabel
-                disabled={gameStarted && !gameState.isOver}
+                disabled={disableLevels}
                 control={<Radio />}
                 value={GameLevelEnum.MEDIUM}
                 label="Medium"
               />
               <FormControlLabel
-                disabled={gameStarted && !gameState.isOver}
+                disabled={disableLevels}
                 control={<Radio />}
                 value={GameLevelEnum.HARD}
                 label="Hard"

@@ -1,0 +1,85 @@
+.board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  &:before {
+    content: "";
+    background: url('./santa-hat2.png') no-repeat center;
+    background-size: cover;
+    position: absolute;
+    top: -1.25rem;
+    right: -1.25rem;
+    width: 4rem;
+    height: 4rem;
+    z-index: 99;
+  }
+
+  &:after {
+    content: "";
+    border-radius: 0.25rem;
+    background-color: #e2e1e166;
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+  }
+
+  .spin {
+    position: absolute;
+  }
+}
+
+.board-play-area {
+  border-radius: 0.25rem;
+  border: 1px solid #e2e1e1;
+  padding: 0.25rem;
+  display: grid;
+
+  .board-cell {
+    cursor: 'pointer';
+    background-color: #e2e1e1;
+    border-radius: 0.5rem;
+    border: none;
+    margin: 0.5rem;
+    padding: 2.15rem;
+    height: 8rem;
+    width: 8rem;
+    position: relative;
+    transition: opacity 0.3s ease-in;
+
+    &:hover {
+      opacity: 0.45;
+    }
+
+    &.disabled, &:disabled {
+      cursor: 'not-allowed';
+      transition: none;
+      box-shadow: inset 2px 2px 5px 0px rgba(0,0,0,0.5);
+    }
+
+    &.disabled:hover {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .board-cell {
+      padding: 1.785rem;
+      height: 6.25rem;
+      width: 6.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .board-cell {
+      padding: 1.5rem;
+      height: 5rem;
+      width: 5rem;
+    }
+  }
+}

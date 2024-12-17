@@ -1,24 +1,9 @@
 import { useMemo } from 'react';
-import { Box, styled } from '@mui/material';
+import Box from '@mui/material/Box';
 
 import { CircleIcon, XMarkIcon } from '../board-icons';
 
-const BoardPreviewContainer = styled(Box)({
-  padding: '0.5rem',
-  marginBottom: '0.5rem',
-  display: 'grid',
-  gridTemplateRows: 'repeat(3, 1fr)',
-  gridTemplateColumns: 'repeat(3, 1fr)',
-  
-  '.board-cell': {
-    backgroundColor: '#e2e1e1',
-    borderRadius: '0.25rem',
-    margin: '0.25rem',
-    padding: '1.5rem',
-    height: '2.75rem',
-    width: '2.75rem',
-  },
-});
+import './index.scss';
 
 export const GameBoardPreview: React.FC = () => {
   const boardCells = useMemo(
@@ -33,8 +18,8 @@ export const GameBoardPreview: React.FC = () => {
   );
 
   return (
-    <BoardPreviewContainer>
+    <Box className="preview-board">
       {boardCells}
-    </BoardPreviewContainer>
+    </Box>
   )
 };
