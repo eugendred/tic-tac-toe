@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { useFetch, useGameRoom } from '../hooks';
-import { GameHistoryAction } from '../utils';
+import { GameHistoryAction, getStatistics, updateStatistics, GameStatistics } from '../utils';
 import { GameStateProps, GameModeEnum, GameLevelEnum, GamePlayerEnum, GameSettings } from '../types';
 
 const DEFAULT_GAME_STATE = Object.freeze({
@@ -25,6 +25,7 @@ export type GameBoardContextProps = {
   readonly gameState: GameStateProps;
   readonly gameLevel: GameLevelEnum;
   readonly playerTurn: GamePlayerEnum;
+  readonly statistics: GameStatistics;
   setGameLevel: (level: GameLevelEnum) => void,
   restartGame: () => void,
   replayGame: () => void,
@@ -43,6 +44,7 @@ const useGameBoardContextValues = () => {
   const [gameLevel, setGameLevel] = useState(GameLevelEnum.EASY);
   const [gameState, setGameState] = useState({ ...DEFAULT_GAME_STATE } as GameStateProps);
   const [playerTurn, setPlayerTurn] = useState(GamePlayerEnum.X);
+  const [statistics, setStatistics] = useState<GameStatistics>(getStatistics());
   const intervalRef = useRef<any>(null);
 
   const resetBoardState = (size: number) => {
@@ -175,6 +177,12 @@ const useGameBoardContextValues = () => {
           addToHistory(GamePlayerEnum.O, res.moveIdx);
           turnMoveToPlayer();
         }
+        
+        // Update statistics when game ends
+        if (res.gameState.isOver && res.gameState.winner) {
+          const updatedStats = updateStatistics(res.gameState.winner);
+          setStatistics(updatedStats);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -197,6 +205,11 @@ const useGameBoardContextValues = () => {
   }, [gameSettings.size]);
 
   useEffect(() => {
+    // Load statistics on mount
+    setStatistics(getStatistics());
+  }, []);
+
+  useEffect(() => {
     return () => {
       clearInterval(intervalRef.current);
     };
@@ -209,6 +222,7 @@ const useGameBoardContextValues = () => {
       gameLevel,
       gameSettings,
       playerTurn,
+      statistics,
       setGameLevel,
       restartGame,
       replayGame,
@@ -222,6 +236,7 @@ const useGameBoardContextValues = () => {
       gameLevel,
       gameSettings,
       playerTurn,
+      statistics,
       setGameLevel,
       restartGame,
       replayGame,

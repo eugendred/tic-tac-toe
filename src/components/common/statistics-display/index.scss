@@ -1,0 +1,58 @@
+.statistics-display {
+  .stat-item {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px;
+    
+    &.stat-x {
+      .stat-value {
+        background: linear-gradient(135deg, #4285F4 0%, #1B9A59 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+    
+    &.stat-o {
+      .stat-value {
+        background: linear-gradient(135deg, #DE3E35 0%, #F7C223 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+    
+    &.stat-draw {
+      .stat-value {
+        background: linear-gradient(135deg, #F7C223 0%, #DE3E35 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  }
+  
+  .stat-value {
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.statistics-display {
+  animation: slideInUp 0.5s ease-out;
+}
+
