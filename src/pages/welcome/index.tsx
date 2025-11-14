@@ -1,4 +1,4 @@
-import { useCallback, memo } from 'react';
+import { useCallback, memo, useState, useEffect } from 'react';
 
 import {
   Box,
@@ -44,8 +44,21 @@ const BaseContainer = styled(Box)({
   },
 });
 
+const FadeInBox = styled(Box)({
+  animation: 'fadeInUp 0.8s ease-out forwards',
+  opacity: 0,
+});
+
 const WelcomePage: React.FC = () => {
   const { gameSettings, setGameSettings, startNewGame } = useGameRoom();
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowContent(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChangeGameSettings = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +78,7 @@ const WelcomePage: React.FC = () => {
     <BaseContainer>
       <GameBoardPreview />
 
-      <Box sx={{ mb: 1 }}>
+      <FadeInBox sx={{ mb: 1, animationDelay: showContent ? '0s' : '0.3s' }}>
         <FormControl>
           <FormLabel>Mode:</FormLabel>
           <RadioGroup
@@ -82,9 +95,9 @@ const WelcomePage: React.FC = () => {
             </Tooltip>
           </RadioGroup>
         </FormControl>
-      </Box>
+      </FadeInBox>
 
-      <Box sx={{ mb: 1 }}>
+      <FadeInBox sx={{ mb: 1, animationDelay: showContent ? '0.1s' : '0.4s' }}>
         <FormControl>
           <FormLabel>Board Size:</FormLabel>
           <RadioGroup
@@ -109,29 +122,31 @@ const WelcomePage: React.FC = () => {
             </Tooltip>
           </RadioGroup>
         </FormControl>
-      </Box>
+      </FadeInBox>
 
-      <Button
-        variant="outlined"
-        startIcon={<SportsScore />}
-        endIcon={<SportsScore />}
-        onClick={startNewGame}
-        sx={{
-          mt: 2,
-          px: 4,
-          py: 1.5,
-          fontSize: '1.1rem',
-          fontWeight: 600,
-          borderRadius: '12px',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
-          },
-        }}
-      >
-        Start Game
-      </Button>
+      <FadeInBox sx={{ animationDelay: showContent ? '0.2s' : '0.5s' }}>
+        <Button
+          variant="outlined"
+          startIcon={<SportsScore />}
+          endIcon={<SportsScore />}
+          onClick={startNewGame}
+          sx={{
+            mt: 2,
+            px: 4,
+            py: 1.5,
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            borderRadius: '12px',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
+            },
+          }}
+        >
+          Start Game
+        </Button>
+      </FadeInBox>
     </BaseContainer>
   );
 };
